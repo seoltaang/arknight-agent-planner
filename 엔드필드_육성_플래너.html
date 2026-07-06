@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>엔드필드 오퍼레이터 육성 플래너</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e0f12; --panel:#16171b; --panel2:#1d1e24; --panel3:#24252c;
+  --line:#2b2d34; --line2:#3a3c45;
+  --ink:#eceae2; --dim:#93959e; --faint:#5d5f68;
+  --yl:#f6d80e; --yl-deep:#b89f13; --yl-dark:#4d430e;
+  --t2:#6ec573; --t3:#54a7e6; --t4:#b78af0; --t5:#eab648;
+  --red:#ff6259; --ok:#6ec573;
+  --el-phys:#b3bac6; --el-fire:#ff7043; --el-cryo:#5fc9f0; --el-elec:#a98cff; --el-nat:#82d16b;
+  --disp:'Chakra Petch','Pretendard Variable',Pretendard,sans-serif;
+  --body:'Pretendard Variable',Pretendard,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono','Chakra Petch',monospace;
+  --cut:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scrollbar-color:#3a3c45 #16171b}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5;
+  background-image:radial-gradient(1200px 600px at 85% -10%, rgba(246,216,14,.05), transparent 60%),
+  repeating-linear-gradient(0deg, transparent 0 3px, rgba(255,255,255,.006) 3px 4px);}
+button{font-family:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input,select{font-family:inherit;color:var(--ink);background:var(--panel3);border:1px solid var(--line2);border-radius:3px;padding:4px 8px;font-size:13px}
+input[type=number]{font-family:var(--mono);width:76px;text-align:right}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--yl);outline-offset:1px}
+::placeholder{color:var(--faint)}
+
+/* ── frame ─────────────────────────── */
+header{position:sticky;top:0;z-index:40;background:linear-gradient(180deg,#121316 60%,rgba(18,19,22,.92));backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.hz{height:5px;background:repeating-linear-gradient(-45deg,var(--yl) 0 12px,#131313 12px 24px);opacity:.9}
+.hd-in{max-width:1460px;margin:0 auto;padding:12px 20px 0;display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
+.logo{display:flex;align-items:baseline;gap:10px}
+.logo b{font-family:var(--disp);font-size:21px;font-weight:700;letter-spacing:.04em;color:var(--yl)}
+.logo span{font-size:11px;color:var(--dim);letter-spacing:.14em;font-family:var(--mono)}
+.hd-sp{flex:1}
+.hd-btns{display:flex;gap:6px;flex-wrap:wrap}
+.tabs{max-width:1460px;margin:8px auto 0;padding:0 20px;display:flex;gap:2px;overflow-x:auto}
+.tab{font-family:var(--disp);font-weight:600;font-size:14px;letter-spacing:.05em;padding:9px 20px 8px;color:var(--dim);
+  border:1px solid transparent;border-bottom:none;position:relative;white-space:nowrap;
+  clip-path:polygon(8px 0,100% 0,100% 100%,0 100%,0 8px)}
+.tab:hover{color:var(--ink)}
+.tab.on{color:var(--yl);background:var(--bg);border-color:var(--line)}
+.tab.on::before{content:"";position:absolute;left:0;top:0;width:22px;height:3px;background:var(--yl);clip-path:polygon(0 0,100% 0,calc(100% - 3px) 100%,0 100%)}
+.tab .n{font-family:var(--mono);font-size:10px;color:var(--faint);margin-right:6px}
+main{max-width:1460px;margin:0 auto;padding:18px 20px 90px}
+
+/* ── generic bits ──────────────────── */
+.btn{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:6px 13px;
+  background:var(--panel2);border:1px solid var(--line2);color:var(--ink);
+  clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);transition:.12s}
+.btn:hover{border-color:var(--yl-deep);color:var(--yl)}
+.btn.yl{background:var(--yl);color:#151300;border-color:var(--yl)}
+.btn.yl:hover{background:#ffe63a;color:#151300}
+.btn.sm{padding:3px 9px;font-size:11.5px}
+.btn.ghost{background:transparent}
+.btn.danger:hover{border-color:var(--red);color:var(--red)}
+.btn[disabled]{opacity:.4;pointer-events:none}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:2px 8px;border:1px solid var(--line2);color:var(--dim);border-radius:2px;background:var(--panel2)}
+.tag{font-family:var(--mono);font-size:10px;letter-spacing:.08em;padding:1px 6px;border-radius:2px}
+.sec-t{display:flex;align-items:center;gap:10px;margin:26px 0 12px;font-family:var(--disp);font-weight:700;font-size:16px;letter-spacing:.05em}
+.sec-t::before{content:"";width:10px;height:10px;background:var(--yl);clip-path:polygon(0 0,100% 0,100% 100%)}
+.sec-t small{font-family:var(--body);font-weight:400;font-size:12px;color:var(--dim);letter-spacing:0}
+.panel{background:var(--panel);border:1px solid var(--line);clip-path:polygon(var(--cut) 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%,0 var(--cut))}
+.note{font-size:12px;color:var(--dim);line-height:1.6}
+.mono{font-family:var(--mono)}
+.yl-t{color:var(--yl)}
+.red-t{color:var(--red)}
+.ok-t{color:var(--ok)}
+.hr{height:1px;background:var(--line);margin:14px 0}
+kbd.count{font-family:var(--mono);font-weight:600}
+
+/* status badges */
+.st{font-family:var(--disp);font-weight:600;font-size:10.5px;letter-spacing:.1em;padding:2px 8px;clip-path:polygon(4px 0,100% 0,100% 100%,0 100%,0 4px)}
+.st.jong{background:var(--yl);color:#191600}
+.st.jun{background:#3d3711;color:var(--yl);border:1px solid var(--yl-deep)}
+.st.grow{background:#14303d;color:#6fc6ee;border:1px solid #2b586d}
+.st.raw{background:var(--panel3);color:var(--dim);border:1px solid var(--line2)}
+.st.no{background:transparent;color:var(--faint);border:1px dashed var(--line2)}
+
+/* element dot */
+.el{display:inline-block;width:9px;height:9px;transform:rotate(45deg);margin-right:1px}
+.el.물리{background:var(--el-phys)}.el.열기{background:var(--el-fire)}.el.냉기{background:var(--el-cryo)}.el.전기{background:var(--el-elec)}.el.자연{background:var(--el-nat)}
+
+/* ── filter bar ────────────────────── */
+.fbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.fgrp{display:flex;gap:4px;flex-wrap:wrap}
+.fbtn{font-size:12px;padding:4px 11px;border:1px solid var(--line2);background:var(--panel);color:var(--dim);clip-path:polygon(5px 0,100% 0,100% 100%,0 100%,0 5px)}
+.fbtn.on{border-color:var(--yl);color:var(--yl);background:#211f10}
+.fbtn .c{font-family:var(--mono);font-size:10px;opacity:.75;margin-left:4px}
+
+/* ── char grid ─────────────────────── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:12px}
+.card{position:relative;background:var(--panel);border:1px solid var(--line);padding:12px 12px 10px;cursor:pointer;transition:.13s;
+  clip-path:polygon(var(--cut) 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%,0 var(--cut))}
+.card:hover{border-color:var(--yl-deep);background:#1a1b20}
+.card.unowned{opacity:.55}
+.card.unowned:hover{opacity:.85}
+.card.plan::after{content:"PLAN";position:absolute;top:0;right:0;font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:#151300;background:var(--yl);padding:2px 9px 2px 12px;clip-path:polygon(8px 0,100% 0,100% 100%,0 100%)}
+.c-top{display:flex;gap:10px}
+.ava{position:relative;width:58px;height:58px;flex:none;background:var(--panel3);border:1px solid var(--line2);overflow:hidden;
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.ava img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;display:block}
+.ava:has(img) .fb{visibility:hidden}
+.ava .rr{z-index:2}
+.ava .fb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:700;font-size:20px;color:var(--faint)}
+.ava .rr{position:absolute;left:0;bottom:0;right:0;height:3px}
+.r6 .rr{background:var(--t5)} .r5 .rr{background:var(--t4)} .r4 .rr{background:var(--t3)}
+.c-meta{min-width:0;flex:1}
+.c-name{font-weight:700;font-size:15px;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-sub{font-size:11px;color:var(--dim);margin-top:1px;display:flex;flex-wrap:wrap;gap:2px 8px}
+.stars{font-size:10px;letter-spacing:1px}
+.r6 .stars,.stars.r6{color:var(--t5)}.r5 .stars,.stars.r5{color:var(--t4)}.r4 .stars,.stars.r4{color:var(--t3)}
+.c-state{margin-top:9px;display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;color:var(--dim)}
+.c-state b{color:var(--ink);font-weight:600}
+/* growth rail (signature) */
+.rail{position:relative;height:16px;margin:15px 6px 0}
+.rail .bar{position:absolute;left:0;right:0;top:6px;height:2px;background:var(--line2)}
+.rail .fill{position:absolute;left:0;top:6px;height:2px;background:var(--yl)}
+.rail .tgt{position:absolute;left:0;top:6px;height:2px;background:repeating-linear-gradient(90deg,var(--yl-deep) 0 4px,transparent 4px 8px)}
+.rail .tick{position:absolute;top:3px;width:1px;height:8px;background:var(--line2)}
+.rail .tick.done{background:var(--yl)}
+.rail .cap{position:absolute;top:-6px;transform:translateX(-50%);font-family:var(--mono);font-size:8.5px;color:var(--faint)}
+.rail .cur{position:absolute;top:1px;width:6px;height:12px;background:var(--yl);transform:translateX(-50%);clip-path:polygon(50% 0,100% 30%,100% 100%,0 100%,0 30%)}
+.c-foot{display:flex;gap:5px;margin-top:10px}
+.c-foot .btn{flex:1;justify-content:center}
+
+/* ── drawer ────────────────────────── */
+.scrim{position:fixed;inset:0;background:rgba(5,5,7,.6);z-index:60;opacity:0;pointer-events:none;transition:.18s}
+.scrim.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(860px,100%);z-index:61;background:var(--bg);border-left:1px solid var(--line2);
+  transform:translateX(102%);transition:transform .22s ease;display:flex;flex-direction:column}
+.drawer.open{transform:none}
+@media (prefers-reduced-motion:reduce){.drawer,.scrim{transition:none}}
+.d-hd{padding:0;border-bottom:1px solid var(--line);background:var(--panel)}
+.d-hd-in{display:flex;gap:14px;padding:16px 22px 14px;align-items:center}
+.d-hd .ava{width:72px;height:72px}
+.d-name{font-family:var(--disp);font-weight:700;font-size:22px;letter-spacing:.02em}
+.d-sub{font-size:12px;color:var(--dim);margin-top:2px;display:flex;gap:10px;flex-wrap:wrap}
+.d-x{margin-left:auto;font-size:20px;color:var(--dim);padding:6px 10px}
+.d-x:hover{color:var(--yl)}
+.d-body{overflow-y:auto;padding:18px 22px 60px;flex:1}
+.d-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.d-cols{grid-template-columns:1fr}}
+.ed{background:var(--panel);border:1px solid var(--line);padding:14px}
+.ed h4{font-family:var(--disp);font-size:13px;letter-spacing:.09em;color:var(--dim);font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.ed h4 b{color:var(--ink)}
+.ed.tgt-ed{border-color:#4a4310}
+.ed.tgt-ed h4 b{color:var(--yl)}
+.row{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.row .lb{width:64px;flex:none;font-size:12px;color:var(--dim)}
+.seg{display:flex;gap:3px;flex-wrap:wrap}
+.seg button{font-family:var(--mono);font-size:11.5px;min-width:36px;padding:4px 7px;border:1px solid var(--line2);background:var(--panel3);color:var(--dim);clip-path:polygon(4px 0,100% 0,100% 100%,0 100%,0 4px)}
+.seg button.on{background:var(--yl);border-color:var(--yl);color:#171400;font-weight:600}
+.seg button:disabled{opacity:.3;cursor:not-allowed}
+.skrow{display:grid;grid-template-columns:70px 1fr;align-items:center;gap:8px;margin-bottom:7px}
+.skrow .lb2{font-size:12px;color:var(--dim)}
+.stp{display:flex;align-items:center;gap:6px}
+.stp button{width:24px;height:24px;border:1px solid var(--line2);background:var(--panel3);font-family:var(--mono);line-height:1}
+.stp button:hover{border-color:var(--yl-deep);color:var(--yl)}
+.stp .v{font-family:var(--mono);font-weight:600;width:56px;text-align:center;font-size:13px}
+.stp .v .cap2{color:var(--faint);font-weight:500}
+.stp input[type=range]{flex:1;accent-color:var(--yl);min-width:60px}
+.nodes{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;margin-top:4px}
+@media(max-width:520px){.nodes{grid-template-columns:1fr}}
+.nd{display:flex;align-items:center;gap:7px;font-size:12px;padding:4px 6px;border:1px solid transparent;cursor:pointer;color:var(--dim)}
+.nd:hover{border-color:var(--line2)}
+.nd input{accent-color:var(--yl)}
+.nd.onn{color:var(--ink)}
+.nd .rq{font-family:var(--mono);font-size:9.5px;color:var(--faint);margin-left:auto}
+.nd.locked{opacity:.45}
+.preset-r{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.warn{font-size:11.5px;color:var(--red);margin-top:4px}
+
+/* material chips */
+.mats{display:flex;flex-wrap:wrap;gap:7px}
+.mat{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line2);padding:5px 10px 5px 6px;min-width:150px;
+  clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px)}
+.mat .ic{width:26px;height:26px;flex:none;position:relative;display:flex;align-items:center;justify-content:center}
+.mat .ic::before{content:"";position:absolute;inset:2px;transform:rotate(45deg);background:var(--panel3);border:1px solid var(--line2)}
+.mat .ic span{position:relative;font-size:12px;line-height:1;filter:saturate(.9)}
+.mat.tier2 .ic::before{border-color:var(--t2)} .mat.tier3 .ic::before{border-color:var(--t3)}
+.mat.tier4 .ic::before{border-color:var(--t4)} .mat.tier5 .ic::before{border-color:var(--t5);background:#2b230f}
+.mat .tx{min-width:0}
+.mat .nm{font-size:11.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+.mat .qt{font-family:var(--mono);font-weight:600;font-size:13px}
+.mat .qt small{color:var(--faint);font-weight:500}
+.mat.lack{border-color:#5a2723}
+.mat.lack .qt{color:var(--red)}
+.mat.done2{opacity:.6}
+.mat.done2 .qt{color:var(--ok)}
+
+/* ── inventory / summary tab ───────── */
+.sum-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.inv{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);padding:9px 12px 9px 8px}
+.inv .ic{width:34px;height:34px;flex:none;position:relative;display:flex;align-items:center;justify-content:center}
+.inv .ic::before{content:"";position:absolute;inset:3px;transform:rotate(45deg);background:var(--panel3);border:1.5px solid var(--line2)}
+.inv.tier2 .ic::before{border-color:var(--t2)} .inv.tier3 .ic::before{border-color:var(--t3)}
+.inv.tier4 .ic::before{border-color:var(--t4)} .inv.tier5 .ic::before{border-color:var(--t5);background:#2b230f}
+.inv .ic span{position:relative;font-size:15px}
+.inv .mid{flex:1;min-width:0}
+.inv .nm{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inv .need{font-family:var(--mono);font-size:11px;color:var(--dim)}
+.inv .need .l{color:var(--red);font-weight:600}
+.inv .need .k{color:var(--ok);font-weight:600}
+.inv input{width:84px}
+.big-stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.bstat{flex:1;min-width:150px;background:var(--panel);border:1px solid var(--line);padding:12px 16px;position:relative;overflow:hidden}
+.bstat::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--yl)}
+.bstat .k{font-size:11px;color:var(--dim);letter-spacing:.08em}
+.bstat .v{font-family:var(--mono);font-weight:600;font-size:20px;margin-top:2px}
+.bstat .v small{font-size:11px;color:var(--dim);font-weight:500}
+
+/* per-item breakdown */
+details.bd{border:1px solid var(--line);background:var(--panel);margin-bottom:8px}
+details.bd summary{cursor:pointer;padding:10px 14px;display:flex;align-items:center;gap:10px;list-style:none}
+details.bd summary::-webkit-details-marker{display:none}
+details.bd summary:hover{background:var(--panel2)}
+details.bd .in{padding:4px 14px 12px;border-top:1px solid var(--line)}
+.who{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.who .w{font-size:11.5px;border:1px solid var(--line2);background:var(--panel2);padding:3px 8px;color:var(--dim)}
+.who .w b{color:var(--ink)}
+.bar-o{height:5px;background:var(--panel3);margin-top:8px;position:relative}
+.bar-o .f{height:100%;background:var(--yl)}
+.bar-o .f.full{background:var(--ok)}
+
+/* ── farm tab ──────────────────────── */
+.farm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px;align-items:start}
+.fcard{background:var(--panel);border:1px solid var(--line);padding:0}
+.fcard .fh{padding:11px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:9px;background:linear-gradient(90deg,#1b1c21,var(--panel))}
+.fcard .fh .dg{font-family:var(--disp);font-weight:700;font-size:14.5px;flex:1;min-width:0}
+.fcard .fh .dg small{display:block;font-family:var(--mono);font-weight:500;font-size:10px;color:var(--dim);letter-spacing:.06em}
+.fcard .fh .cost{font-family:var(--mono);font-size:10.5px;color:var(--faint);text-align:right;white-space:nowrap}
+.fcard.hot{border-color:var(--yl-deep)}
+.fcard.hot .fh{background:linear-gradient(90deg,#292410,var(--panel))}
+.fcard .fb2{padding:11px 14px}
+.fcard .m-row{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12.5px}
+.fcard .m-row .q{margin-left:auto;font-family:var(--mono);font-weight:600}
+.fcard .m-row .q.z{color:var(--ok)}
+.pip{width:8px;height:8px;transform:rotate(45deg);flex:none}
+.runs{margin-top:8px;font-size:11px;color:var(--dim);border-top:1px dashed var(--line);padding-top:8px}
+.runs b{color:var(--yl);font-family:var(--mono)}
+
+/* item images & quick buttons & search */
+.itim{position:relative;width:82%;height:82%;object-fit:contain;z-index:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
+.ic .gl{position:absolute;z-index:0}
+.ic:has(.itim) .gl{opacity:.0}
+.tgtb{font-family:var(--mono);font-size:10px;letter-spacing:.05em;padding:1px 7px;border:1px solid var(--line2);color:var(--dim);white-space:nowrap}
+.tgtb.jong{border-color:var(--yl);color:var(--yl);background:#241f0a}
+.tgtb.jun{border-color:var(--yl-deep);color:#d8c34a}
+.tgtb.custom{border-color:#3d6a86;color:#7dc4ea}
+.qwrap{display:inline-flex;gap:3px;margin-left:6px}
+.qbtn{font-family:var(--mono);font-size:10.5px;padding:3px 7px;border:1px solid var(--line2);background:var(--panel3);color:var(--dim);clip-path:polygon(3px 0,100% 0,100% 100%,0 100%,0 3px)}
+.qbtn:hover{border-color:var(--yl-deep);color:var(--yl)}
+.qbtn:active{background:var(--yl);color:#171400}
+.invctl{display:inline-flex;align-items:center;flex-wrap:wrap;gap:3px;justify-content:flex-end}
+.srch{width:150px;background:var(--panel);border:1px solid var(--line2);padding:5px 10px;font-size:12.5px}
+.srch::-webkit-search-cancel-button{cursor:pointer}
+.expwrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:12px;margin-bottom:14px}
+.exph{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding-bottom:8px}
+.exph b{font-family:var(--disp);font-size:14px;letter-spacing:.03em}
+.expsum{border-top:1px solid var(--line);margin-top:2px;padding-top:10px;font-size:12.5px;color:var(--dim)}
+.expsum.okline{color:var(--dim)}
+.elsvg{vertical-align:-2px}
+.d-sub .elsvg{vertical-align:-2.5px}
+/* drawer extras & custom form */
+.ava-btn{padding:0;position:relative}
+.ava-btn::after{content:"✎";position:absolute;right:-4px;bottom:-4px;z-index:3;font-size:10px;background:var(--yl);color:#171400;width:16px;height:16px;display:flex;align-items:center;justify-content:center;clip-path:polygon(3px 0,100% 0,100% 100%,0 100%,0 3px)}
+.imgpanel{padding:10px 22px 14px;border-bottom:1px solid var(--line);background:var(--panel2)}
+.segmini{display:inline-flex;gap:2px}
+.segmini button{font-size:11px;padding:3px 10px;border:1px solid var(--line2);background:var(--panel2);color:var(--dim)}
+.segmini button.on{background:var(--yl);border-color:var(--yl);color:#171400;font-weight:600}
+.mats-c .mat{min-width:128px;padding:4px 8px 4px 5px}
+.mats-c .mat .nm{max-width:118px;font-size:10.5px}
+.memo{min-height:70px;font-family:var(--body);font-size:12.5px}
+.memomark{color:var(--yl);font-size:11px}
+.addcard{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border-style:dashed;min-height:150px;color:var(--dim);text-align:center}
+.addcard .plus{font-size:26px;color:var(--yl);line-height:1}
+.addcard:hover{color:var(--ink)}
+.frow{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.frow label{width:130px;flex:none;font-size:12px;color:var(--dim);line-height:1.25}
+.frow label small{color:var(--faint);font-size:10px}
+.frow input,.frow select{flex:1;min-width:120px}
+/* toast */
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--yl);color:#171400;font-weight:600;font-size:13px;padding:9px 20px;z-index:99;opacity:0;pointer-events:none;transition:.2s;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+#toast.show{opacity:1;transform:translateX(-50%)}
+
+/* settings tab */
+.set-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+textarea{width:100%;min-height:120px;background:var(--panel3);color:var(--ink);border:1px solid var(--line2);font-family:var(--mono);font-size:11px;padding:8px}
+.empty{padding:50px 20px;text-align:center;color:var(--faint);border:1px dashed var(--line2)}
+.empty b{color:var(--dim)}
+footer{max-width:1460px;margin:40px auto 0;padding:14px 20px 26px;border-top:1px solid var(--line);font-size:11px;color:var(--faint);line-height:1.7}
+@media(max-width:640px){ main{padding:14px 12px 80px} .hd-in{padding:10px 12px 0} .tabs{padding:0 12px} .grid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))} .c-foot{flex-direction:column} }
+</style>
+</head>
+<body>
+<header>
+  <div class="hz"></div>
+  <div class="hd-in">
+    <div class="logo"><b>ENDFIELD</b><span>OPERATOR&nbsp;GROWTH&nbsp;PLANNER</span></div>
+    <div class="hd-sp"></div>
+    <div class="hd-btns">
+      <button class="btn sm yl" onclick="App.saveNow()">저장</button>
+      <button class="btn sm ghost" onclick="App.exportData()">내보내기</button>
+      <button class="btn sm ghost" onclick="App.importData()">가져오기</button>
+      <span id="save-ind" class="chip" title="브라우저 저장 상태">저장 확인 중…</span>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs"></nav>
+</header>
+
+<main id="main"></main>
+
+<footer>
+  데이터 기준: 인게임 성장 트리 데이터 (2026-06 클라이언트) · 캐릭터 아이콘: prydwen.gg · 재료 아이콘: enka.network (연결이 없으면 심볼·이니셜로 대체)<br>
+  던전 1회당 수급량(심층 확정 9개 / 고위험 재료 확정 6개)은 커뮤니티 참고치입니다. 팬메이드 비공식 툴 — Arknights: Endfield © Hypergryph
+</footer>
+
+<div class="scrim" id="scrim" onclick="App.closeDrawer()"></div>
+<aside class="drawer" id="drawer" aria-label="오퍼레이터 상세"></aside>
+<div id="toast"></div>
+<input type="file" id="file-in" accept=".json" style="display:none">
+
+<script>
+"use strict";
+/* ══════════════════ GAME DATA (게임 클라이언트 테이블에서 추출) ══════════════════ */
+const CORE = {"chars":[{"id":"chr_0002_endminm","en":"Endministrator","kr":"관리자","rar":6,"elem":"물리","cls":"가드","wpn":"한손검","icon":"endministrator","specA":"item_char_skill_specialize_3","specB":"item_char_skill_specialize_2","e4spec":"item_char_skill_specialize_1","mush":"item_plant_mushroom_2_1","gplant":"item_plant_crylplant_2_2","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}}]},{"id":"chr_0004_pelica","en":"Perlica","kr":"펠리카","rar":5,"elem":"전기","cls":"캐스터","wpn":"아츠 유닛","icon":"perlica","specA":"item_char_skill_specialize_2","specB":"item_char_skill_specialize_1","e4spec":"item_char_skill_specialize_3","mush":"item_plant_mushroom_2_1","gplant":"item_plant_crylplant_2_1","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10800}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":3,"cost":{"item_char_skill_level_7_12":36,"item_gold":32000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0005_chen","en":"Chen Qianyu","kr":"진천우","rar":5,"elem":"물리","cls":"가드","wpn":"한손검","icon":"chen-qianyu","specA":"item_char_skill_specialize_3","specB":"item_char_skill_specialize_2","e4spec":"item_char_skill_specialize_4","mush":"item_plant_mushroom_2_2","gplant":"item_plant_crylplant_2_1","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0006_wolfgd","en":"Wulfgard","kr":"울프가드","rar":5,"elem":"열기","cls":"캐스터","wpn":"핸드캐논","icon":"wulfgard","specA":"item_char_skill_specialize_4","specB":"item_char_skill_specialize_3","e4spec":"item_char_skill_specialize_5","mush":"item_plant_mushroom_2_2","gplant":"item_plant_crylplant_2_2","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0007_ikut","en":"Arclight","kr":"아크라이트","rar":5,"elem":"전기","cls":"뱅가드","wpn":"한손검","icon":"arclight","specA":"item_char_skill_specialize_3","specB":"item_char_skill_specialize_2","e4spec":"item_char_skill_specialize_1","mush":"item_plant_mushroom_2_2","gplant":"item_plant_crylplant_2_2","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0009_azrila","en":"Ember","kr":"엠버","rar":6,"elem":"열기","cls":"디펜더","wpn":"양손검","icon":"ember","specA":"item_char_skill_specialize_4","specB":"item_char_skill_specialize_3","e4spec":"item_char_skill_specialize_2","mush":"item_plant_mushroom_2_2","gplant":"item_plant_crylplant_2_1","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0011_seraph","en":"Xaihi","kr":"자이히","rar":5,"elem":"냉기","cls":"서포터","wpn":"아츠 유닛","icon":"xaihi","specA":"item_char_skill_specialize_4","specB":"item_char_skill_specialize_3","e4spec":"item_char_skill_specialize_2","mush":"item_plant_mushroom_2_1","gplant":"item_plant_crylplant_2_1","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10800}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":3,"cost":{"item_char_skill_level_7_12":36,"item_gold":32000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0012_avywen","en":"Avywenna","kr":"아비웨나","rar":5,"elem":"전기","cls":"스트라이커","wpn":"장창","icon":"avywenna","specA":"item_char_skill_specialize_5","specB":"item_char_skill_specialize_4","e4spec":"item_char_skill_specialize_3","mush":"item_plant_mushroom_2_1","gplant":"item_plant_crylplant_2_2","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0013_aglina","en":"Gilberta","kr":"질베르타","rar":6,"elem":"자연","cls":"서포터","wpn":"아츠 유닛","icon":"gilberta","specA":"item_char_skill_specialize_5","specB":"item_char_skill_specialize_4","e4spec":"item_char_skill_specialize_3","mush":"item_plant_mushroom_2_1","gplant":"item_plant_crylplant_2_2","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0014_aurora","en":"Snowshine","kr":"스노우샤인","rar":5,"elem":"냉기","cls":"디펜더","wpn":"양손검","icon":"snowshine","specA":"item_char_skill_specialize_1","specB":"item_char_skill_specialize_5","e4spec":"item_char_skill_specialize_4","mush":"item_plant_mushroom_2_1","gplant":"item_plant_crylplant_2_1","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0015_lifeng","en":"Lifeng","kr":"여풍","rar":6,"elem":"물리","cls":"가드","wpn":"장창","icon":"lifeng","specA":"item_char_skill_specialize_5","specB":"item_char_skill_specialize_4","e4spec":"item_char_skill_specialize_1","mush":"item_plant_mushroom_2_1","gplant":"item_plant_crylplant_2_1","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0016_laevat","en":"Laevatain","kr":"레바테인","rar":6,"elem":"열기","cls":"스트라이커","wpn":"한손검","icon":"laevatain","specA":"item_char_skill_specialize_1","specB":"item_char_skill_specialize_5","e4spec":"item_char_skill_specialize_2","mush":"item_plant_mushroom_2_2","gplant":"item_plant_crylplant_2_1","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":0,"cost":{}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10800}},{"k":"talent_0_3","t":4,"lbl":"재능 1 · 3단계","req":3,"cost":{"item_char_skill_level_7_12":18,"item_gold":16000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":18,"item_gold":16000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0017_yvonne","en":"Yvonne","kr":"이본","rar":6,"elem":"냉기","cls":"스트라이커","wpn":"핸드캐논","icon":"yvonne","specA":"item_char_skill_specialize_2","specB":"item_char_skill_specialize_1","e4spec":"item_char_skill_specialize_3","mush":"item_plant_mushroom_2_1","gplant":"item_plant_crylplant_2_2","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0018_dapan","en":"Da Pan","kr":"판","rar":5,"elem":"물리","cls":"스트라이커","wpn":"양손검","icon":"da-pan","specA":"item_char_skill_specialize_2","specB":"item_char_skill_specialize_1","e4spec":"item_char_skill_specialize_5","mush":"item_plant_mushroom_2_1","gplant":"item_plant_crylplant_2_2","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0019_karin","en":"Akekuri","kr":"아케쿠리","rar":4,"elem":"열기","cls":"뱅가드","wpn":"한손검","icon":"akekuri","specA":"item_char_skill_specialize_1","specB":"item_char_skill_specialize_5","e4spec":"item_char_skill_specialize_2","mush":"item_plant_mushroom_2_2","gplant":"item_plant_crylplant_2_1","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10800}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":3,"cost":{"item_char_skill_level_7_12":36,"item_gold":32000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0020_meurs","en":"Catcher","kr":"카치르","rar":4,"elem":"물리","cls":"디펜더","wpn":"양손검","icon":"catcher","specA":"item_char_skill_specialize_2","specB":"item_char_skill_specialize_1","e4spec":"item_char_skill_specialize_3","mush":"item_plant_mushroom_2_1","gplant":"item_plant_crylplant_2_2","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0021_whiten","en":"Estella","kr":"에스텔라","rar":4,"elem":"냉기","cls":"가드","wpn":"장창","icon":"estella","specA":"item_char_skill_specialize_3","specB":"item_char_skill_specialize_2","e4spec":"item_char_skill_specialize_4","mush":"item_plant_mushroom_2_2","gplant":"item_plant_crylplant_2_2","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0022_bounda","en":"Fluorite","kr":"플루라이트","rar":4,"elem":"자연","cls":"캐스터","wpn":"핸드캐논","icon":"fluorite","specA":"item_char_skill_specialize_4","specB":"item_char_skill_specialize_3","e4spec":"item_char_skill_specialize_5","mush":"item_plant_mushroom_2_2","gplant":"item_plant_crylplant_2_1","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0023_antal","en":"Antal","kr":"안탈","rar":4,"elem":"전기","cls":"서포터","wpn":"아츠 유닛","icon":"antal","specA":"item_char_skill_specialize_3","specB":"item_char_skill_specialize_2","e4spec":"item_char_skill_specialize_1","mush":"item_plant_mushroom_2_2","gplant":"item_plant_crylplant_2_1","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0024_deepfin","en":"Alesh","kr":"알레쉬","rar":5,"elem":"냉기","cls":"뱅가드","wpn":"한손검","icon":"alesh","specA":"item_char_skill_specialize_5","specB":"item_char_skill_specialize_4","e4spec":"item_char_skill_specialize_1","mush":"item_plant_mushroom_2_1","gplant":"item_plant_crylplant_2_2","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0025_ardelia","en":"Ardelia","kr":"아델리아","rar":6,"elem":"자연","cls":"서포터","wpn":"아츠 유닛","icon":"ardelia","specA":"item_char_skill_specialize_3","specB":"item_char_skill_specialize_2","e4spec":"item_char_skill_specialize_4","mush":"item_plant_mushroom_2_2","gplant":"item_plant_crylplant_2_2","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":0,"cost":{}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":1,"cost":{"item_char_skill_level_1_6":36,"item_gold":7200}},{"k":"talent_0_3","t":4,"lbl":"재능 1 · 3단계","req":2,"cost":{"item_char_skill_level_1_6":85,"item_gold":26000}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":85,"item_gold":26000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0026_lastrite","en":"Last Rite","kr":"라스트 라이트","rar":6,"elem":"냉기","cls":"스트라이커","wpn":"양손검","icon":"last-rite","specA":"item_char_skill_specialize_4","specB":"item_char_skill_specialize_3","e4spec":"item_char_skill_specialize_5","mush":"item_plant_mushroom_2_1","gplant":"item_plant_crylplant_2_1","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0027_tangtang","en":"Tangtang","kr":"탕탕","rar":6,"elem":"냉기","cls":"캐스터","wpn":"핸드캐논","icon":"tangtang","specA":"item_char_skill_specialize_4","specB":"item_char_skill_specialize_2","e4spec":"item_char_skill_specialize_1","mush":"item_plant_mushroom_2_1","gplant":"item_plant_crylplant_2_1","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0028_wulfa","en":"Rossi","kr":"로시","rar":6,"elem":"물리","cls":"가드","wpn":"한손검","icon":"rossi","specA":"item_char_skill_specialize_1","specB":"item_char_skill_specialize_3","e4spec":"item_char_skill_specialize_4","mush":"item_plant_mushroom_2_2","gplant":"item_plant_crylplant_2_2","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0029_pograni","en":"Pogranichnik","kr":"포그라니치니크","rar":6,"elem":"물리","cls":"뱅가드","wpn":"한손검","icon":"pogranichnik","specA":"item_char_skill_specialize_5","specB":"item_char_skill_specialize_4","e4spec":"item_char_skill_specialize_1","mush":"item_plant_mushroom_2_2","gplant":"item_plant_crylplant_2_1","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0030_zhuangfy","en":"Zhuang Fangyi","kr":"장방이","rar":6,"elem":"전기","cls":"스트라이커","wpn":"아츠 유닛","icon":"zhuang-fangyi","specA":"item_char_skill_specialize_3","specB":"item_char_skill_specialize_2","e4spec":"item_char_skill_specialize_5","mush":"item_plant_mushroom_2_2","gplant":"item_plant_crylplant_2_1","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0031_mifu","en":"Mifu","kr":"미푸","rar":6,"elem":"물리","cls":"가드","wpn":"양손검","icon":"1779530677177-53e1887951c38a9d216e86462abbfc80","specA":"item_char_skill_specialize_4","specB":"item_char_skill_specialize_5","e4spec":"item_char_skill_specialize_2","mush":"item_plant_mushroom_2_1","gplant":"item_plant_crylplant_2_1","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]},{"id":"chr_0033_camille","en":"Camille","kr":"카뮤","rar":6,"elem":"열기","cls":"뱅가드","wpn":"장창","icon":"camille","specA":"item_char_skill_specialize_3","specB":"item_char_skill_specialize_4","e4spec":"item_char_skill_specialize_1","mush":"item_plant_mushroom_2_2","gplant":"item_plant_crylplant_2_2","nodes":[{"k":"equipBreakT2","t":2,"lbl":"장비 조합 1","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 조합 2","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 조합 3","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}]}],"exp":[{"exp":20,"gold":0},{"exp":30,"gold":0},{"exp":40,"gold":0},{"exp":60,"gold":0},{"exp":90,"gold":0},{"exp":140,"gold":0},{"exp":200,"gold":0},{"exp":280,"gold":0},{"exp":390,"gold":0},{"exp":510,"gold":10},{"exp":700,"gold":10},{"exp":940,"gold":20},{"exp":1230,"gold":30},{"exp":1580,"gold":40},{"exp":2000,"gold":60},{"exp":2560,"gold":90},{"exp":3210,"gold":130},{"exp":3990,"gold":180},{"exp":4890,"gold":250},{"exp":6080,"gold":310},{"exp":7610,"gold":390},{"exp":8440,"gold":430},{"exp":9200,"gold":470},{"exp":9890,"gold":500},{"exp":10510,"gold":530},{"exp":11050,"gold":560},{"exp":11830,"gold":600},{"exp":12370,"gold":620},{"exp":12690,"gold":640},{"exp":13100,"gold":660},{"exp":13510,"gold":680},{"exp":14100,"gold":710},{"exp":14580,"gold":730},{"exp":14950,"gold":750},{"exp":15210,"gold":770},{"exp":15460,"gold":780},{"exp":15720,"gold":790},{"exp":15990,"gold":800},{"exp":16250,"gold":820},{"exp":16520,"gold":830},{"exp":17010,"gold":860},{"exp":17510,"gold":880},{"exp":18030,"gold":910},{"exp":18570,"gold":930},{"exp":19050,"gold":960},{"exp":19760,"gold":990},{"exp":20470,"gold":1030},{"exp":21230,"gold":1070},{"exp":22070,"gold":1110},{"exp":22990,"gold":1150},{"exp":23980,"gold":1200},{"exp":25050,"gold":1260},{"exp":26210,"gold":1320},{"exp":27460,"gold":1380},{"exp":28820,"gold":1450},{"exp":30270,"gold":1520},{"exp":31840,"gold":1600},{"exp":33530,"gold":1680},{"exp":35340,"gold":1770},{"exp":14510,"gold":1820},{"exp":14710,"gold":1960},{"exp":14910,"gold":2110},{"exp":15030,"gold":2250},{"exp":15390,"gold":2430},{"exp":15920,"gold":2660},{"exp":16620,"gold":2930},{"exp":17500,"gold":3240},{"exp":18560,"gold":3610},{"exp":19810,"gold":4050},{"exp":21250,"gold":4560},{"exp":22880,"gold":5140},{"exp":24710,"gold":5820},{"exp":26750,"gold":6590},{"exp":29000,"gold":7470},{"exp":31460,"gold":8480},{"exp":33400,"gold":9400},{"exp":35440,"gold":10410},{"exp":37580,"gold":11520},{"exp":39800,"gold":12730},{"exp":42100,"gold":14040},{"exp":45220,"gold":15720},{"exp":48510,"gold":17570},{"exp":51960,"gold":19600},{"exp":55550,"gold":21830},{"exp":59300,"gold":24260},{"exp":63180,"gold":26910},{"exp":67190,"gold":29800},{"exp":71340,"gold":32930},{"exp":75600,"gold":36320}],"skillRows":[{"lv":2,"gold":1000,"items":{"item_char_skill_level_1_6":6,"item_plant_crylplant_1_1":1}},{"lv":3,"gold":2700,"items":{"item_char_skill_level_1_6":12,"item_plant_crylplant_1_1":2}},{"lv":4,"gold":3200,"items":{"item_char_skill_level_1_6":16,"item_plant_crylplant_1_2":1}},{"lv":5,"gold":4200,"items":{"item_char_skill_level_1_6":21,"item_plant_crylplant_1_2":1}},{"lv":6,"gold":5400,"items":{"item_char_skill_level_1_6":27,"item_plant_crylplant_1_2":2}},{"lv":7,"gold":8200,"items":{"item_char_skill_level_7_12":6,"item_plant_crylplant_1_3":1}},{"lv":8,"gold":10500,"items":{"item_char_skill_level_7_12":8,"item_plant_crylplant_1_3":1}},{"lv":9,"gold":18000,"items":{"item_char_skill_level_7_12":15,"item_plant_crylplant_1_3":2}},{"lv":10,"gold":24000,"items":{"item_char_skill_crown":1,"item_char_skill_level_7_12":15,"SPEC":6,"GPLANT":3}},{"lv":11,"gold":30000,"items":{"item_char_skill_crown":2,"item_char_skill_level_7_12":24,"SPEC":16,"GPLANT":6}},{"lv":12,"gold":65000,"items":{"item_char_skill_crown":3,"item_char_skill_level_7_12":50,"SPEC":36,"GPLANT":12}}],"breaks":[{"item_char_break_stage_1_2":8,"item_plant_mushroom_1_1":3,"item_gold":1600},{"item_char_break_stage_1_2":25,"item_plant_mushroom_1_2":5,"item_gold":6500},{"item_char_break_stage_3_4":24,"item_plant_mushroom_1_3":5,"item_gold":18000},{"item_char_break_stage_3_4":36,"E4SPEC":20,"GMUSH":8,"item_gold":100000}]};
+
+/* 아이템 카탈로그: n=이름, t=티어(색), g=아이콘 글리프, cat=분류, src=획득처 */
+const ITEMS = {
+  item_gold:                 {n:'탈로시안 화폐', t:3, g:'⛃', cat:'재화',  src:'프로토콜 공간 「~의 축복」 / 필드 전리품'},
+  EXP_LOW:                   {n:'작전 기록 경험치 (Lv.1~60)', t:3, g:'▤', cat:'경험치', src:'프로토콜 공간 「변화의 대지」'},
+  EXP_HIGH:                  {n:'인지 매개체 경험치 (Lv.60~90)', t:4, g:'▥', cat:'경험치', src:'프로토콜 공간 「변화의 대지」 (고단계)'},
+  item_expcard_stage1_low:   {n:'초급 작전 기록', t:2, g:'▤', cat:'경험치', v:200,   grp:'EXP_LOW'},
+  item_expcard_stage1_mid:   {n:'중급 작전 기록', t:3, g:'▤', cat:'경험치', v:1000,  grp:'EXP_LOW'},
+  item_expcard_stage1_high:  {n:'고급 작전 기록', t:4, g:'▤', cat:'경험치', v:10000, grp:'EXP_LOW'},
+  item_expcard_stage2_low:   {n:'초급 인지 매개체', t:3, g:'▥', cat:'경험치', v:1000,  grp:'EXP_HIGH'},
+  item_expcard_stage2_high:  {n:'고급 인지 매개체', t:4, g:'▥', cat:'경험치', v:10000, grp:'EXP_HIGH'},
+  item_char_break_stage_1_2: {n:'프로토콜 디스크', t:3, g:'◒', cat:'정예화', src:'프로토콜 공간 「심조」 시리즈'},
+  item_char_break_stage_3_4: {n:'프로토콜 디스크 세트', t:4, g:'◓', cat:'정예화', src:'프로토콜 공간 「심조」 시리즈 (고단계)'},
+  item_char_skill_level_1_6: {n:'프로토콜 프리즘', t:3, g:'◈', cat:'스킬',  src:'프로토콜 공간 「탑」 시리즈'},
+  item_char_skill_level_7_12:{n:'프로토콜 프리즘 세트', t:4, g:'❖', cat:'스킬', src:'프로토콜 공간 「탑」 시리즈 (고단계)'},
+  item_char_skill_crown:     {n:'존속의 흔적', t:5, g:'♔', cat:'마스터리', src:'보장 징표 교환 / 프로토콜 통행증 / 이벤트 (반복 파밍 불가)'},
+  item_char_skill_specialize_1:{n:'초거리 빛 반사 파이프', t:5, g:'⌇', cat:'고급 재료', boss:0},
+  item_char_skill_specialize_2:{n:'D96강 시제품 4번', t:5, g:'▣', cat:'고급 재료', boss:1},
+  item_char_skill_specialize_3:{n:'타키온 차폐 구조체', t:5, g:'⧉', cat:'고급 재료', boss:2},
+  item_char_skill_specialize_4:{n:'정합용 유체', t:5, g:'◍', cat:'고급 재료', boss:3},
+  item_char_skill_specialize_5:{n:'3상 나노플레이크 칩', t:5, g:'▦', cat:'고급 재료', boss:4},
+  item_plant_mushroom_1_1:   {n:'연한 붉은 기둥 버섯', t:2, g:'🍄', cat:'채집 · 버섯', src:'4번 협곡 초반 지역 채집 / 재배실'},
+  item_plant_mushroom_1_2:   {n:'보통 붉은 기둥 버섯', t:3, g:'🍄', cat:'채집 · 버섯', src:'4번 협곡 후반 · 무릉 수돈 채집 / 재배실'},
+  item_plant_mushroom_1_3:   {n:'진한 붉은 기둥 버섯', t:4, g:'🍄', cat:'채집 · 버섯', src:'무릉 지역 채집 / 재배실'},
+  item_plant_mushroom_2_1:   {n:'피버섯', t:5, g:'🍄', cat:'채집 · 버섯', src:'필드 특수 버섯 채집 / 재배실'},
+  item_plant_mushroom_2_2:   {n:'스타게이트 버섯', t:5, g:'🍄', cat:'채집 · 버섯', src:'필드 특수 버섯 채집 / 재배실'},
+  item_plant_crylplant_1_1:  {n:'칼코덴드라', t:2, g:'❋', cat:'채집 · 결정식물', src:'4번 협곡 거점 · 채석장 · 연구 구역 / 재배실'},
+  item_plant_crylplant_1_2:  {n:'크리소덴드라', t:3, g:'❋', cat:'채집 · 결정식물', src:'4번 협곡 광맥 · 에너지 고지 · 무릉 실험 구역 / 재배실'},
+  item_plant_crylplant_1_3:  {n:'비트로덴드라', t:4, g:'❋', cat:'채집 · 결정식물', src:'무릉 경옥 골짜기 · 무릉성 / 재배실'},
+  item_plant_crylplant_2_1:  {n:'침식된 옥 잎', t:5, g:'✾', cat:'채집 · 결정식물', src:'필드 특수 결정식물 채집 / 재배실'},
+  item_plant_crylplant_2_2:  {n:'바위아겔로스 잎', t:5, g:'✾', cat:'채집 · 결정식물', src:'필드 특수 결정식물 채집 / 재배실'},
+};
+/* 심층 보스(고급 재료 확정 파밍처) — specialize_1~5 순서 대응 */
+const BOSSES = [
+  {stage:'고위험 재료 매립장',   deep:'위험한 재현 · 로댄 (심층)'},
+  {stage:'고위험 재료 수집소',   deep:'위험한 재현 · 트리아겔로스 (심층)'},
+  {stage:'고위험 재료 관리실',   deep:'위험한 재현 · 마블 아겔로미레 (심층)'},
+  {stage:'고위험 재료 연구소',   deep:'위험한 재현 · 무릉 심층 보스 Ⅰ'},
+  {stage:'고위험 재료 보관 창고', deep:'위험한 재현 · 무릉 심층 보스 Ⅱ'},
+];
+const SKILLS = [
+  {key:'na', kr:'일반 공격', spec:'B'},
+  {key:'bs', kr:'전투 스킬', spec:'A'},
+  {key:'cs', kr:'연계 스킬', spec:'B'},
+  {key:'ult',kr:'궁극기',   spec:'A'},
+];
+/* 속성 아이콘 (인라인 SVG) */
+const EL_COL = {'물리':'var(--el-phys)','열기':'var(--el-fire)','냉기':'var(--el-cryo)','전기':'var(--el-elec)','자연':'var(--el-nat)'};
+const EL_PATH = {
+ '물리':'M6 2 L10 6 L8 8 L11 11 L9 13 L6 10 L4 12 L2 10 Z',
+ '열기':'M8 1 C8 4 11 5 11 8.5 A3.5 3.5 0 0 1 4 8.5 C4 6.8 5.2 6 5.5 4.8 C6.4 6 7 6.4 7 7.6 C7.8 6.6 8 4.5 8 1 Z',
+ '냉기':'M8 1 L8 15 M8 1 L6 3 M8 1 L10 3 M8 15 L6 13 M8 15 L10 13 M2 4.5 L14 11.5 M2 4.5 L2.6 7 M2 4.5 L4.8 4.2 M14 11.5 L13.4 9 M14 11.5 L11.2 11.8 M14 4.5 L2 11.5 M14 4.5 L13.4 7 M14 4.5 L11.2 4.2 M2 11.5 L2.6 9 M2 11.5 L4.8 11.8',
+ '전기':'M9.5 1 L4 9 L7.4 9 L6 15 L12 6.6 L8.6 6.6 Z',
+ '자연':'M13 2 C7 2 3 5.5 3 10.5 C3 12.5 4 14 4 14 C4.5 10 6.5 7.5 10 6 C7.5 8.2 6 10.6 5.6 13.4 C6.3 13.8 7.2 14 8 14 C12 14 13.6 9 13 2 Z'};
+function elIcon(e, sz){
+  const st = e==='냉기' ? `fill="none" stroke="${EL_COL[e]}" stroke-width="1.4" stroke-linecap="round"` : `fill="${EL_COL[e]}"`;
+  return `<svg class="elsvg" width="${sz||13}" height="${sz||13}" viewBox="0 0 16 16" aria-label="${e}"><path d="${EL_PATH[e]}" ${st}/></svg>`;
+}
+const CAPS  = [20,40,60,80,90];      // 정예화 단계별 레벨 상한
+const SKCAP = [1,3,6,9,12];          // 정예화 단계별 스킬 상한
+const BR_LB = ['미정예','1차 (Lv.20)','2차 (Lv.40)','3차 (Lv.60)','4차 (Lv.80)'];
+/* 능력치 노드 번호 매기기 */
+CORE.chars.forEach(c=>{ let i=0; c.nodes.forEach(nd=>{ if(nd.t===3){ i++; nd.lbl='능력치 노드 '+(['Ⅰ','Ⅱ','Ⅲ','Ⅳ','Ⅴ','Ⅵ'][i-1]||i); } }); });
+/* 아이템 아이콘: enka.network 게임 텍스처 → 실패 시 글리프 */
+const ICON_MAP = {EXP_LOW:'item_expcard_2_3', EXP_HIGH:'item_expcard_stage2_high',
+  item_expcard_stage1_low:'item_expcard_2_1', item_expcard_stage1_mid:'item_expcard_2_2', item_expcard_stage1_high:'item_expcard_2_3'};
+function itemImg(id){
+  const ic = ICON_MAP[id] || id;
+  return `<img class="itim" loading="lazy" referrerpolicy="no-referrer" alt=""
+    src="https://enka.network/ui/ef/itemicon/${ic}.png"
+    data-f="https://enka.network/ui/ef/${ic}.png" onerror="imgFb(this)">`;
+}
+function imgFb(el){ if(el.dataset.f){ el.src=el.dataset.f; delete el.dataset.f; } else el.remove(); }
+const EXP_ITEMS_LOW  = ['item_expcard_stage1_high','item_expcard_stage1_mid','item_expcard_stage1_low'];
+const EXP_ITEMS_HIGH = ['item_expcard_stage2_high','item_expcard_stage2_low'];
+
+/* 보유량 빠른 입력 버튼 (Shift+클릭 = 감소) */
+const QSTEPS = id => id==='item_gold' ? [[1000,'+1천'],[10000,'+1만'],[100000,'+10만']] : [[1,'+1'],[5,'+5'],[10,'+10']];
+function qBtns(id){
+  return `<span class="qwrap" onclick="event.stopPropagation()">` +
+    QSTEPS(id).map(([n,l])=>`<button class="qbtn" title="Shift+클릭 = 감소" onclick="App.invAdd('${id}',${n},event)">${l}</button>`).join('') + `</span>`;
+}
+
+/* ══════════════════ 저장소 (localStorage 사용 불가 환경 자동 대응) ══════════════════ */
+const Store = (()=> {
+  let mem = {}; let ok = false;
+  try { const k='__ef_test'; localStorage.setItem(k,'1'); localStorage.removeItem(k); ok = true; } catch(e){ ok = false; }
+  return {
+    ok,
+    get(k){ try{ return ok ? localStorage.getItem(k) : (mem[k] ?? null); }catch(e){ return mem[k] ?? null; } },
+    set(k,v){ try{ if(ok) localStorage.setItem(k,v); else mem[k]=v; }catch(e){ mem[k]=v; } },
+  };
+})();
+const SKEY = 'endfield_planner_v1';
+
+/* 커스텀(직접 추가) 오퍼레이터용 표준 노드 템플릿 — 가장 흔한 구성 */
+const CUSTOM_NODES = [{"k":"equipBreakT2","t":2,"lbl":"장비 해금 Ⅱ (파랑)","req":1,"cost":{"item_gold":1600}},{"k":"equipBreakT3","t":2,"lbl":"장비 해금 Ⅲ (보라)","req":2,"cost":{"item_gold":6500}},{"k":"equipBreakT4","t":2,"lbl":"장비 해금 Ⅳ (금색)","req":3,"cost":{"item_gold":18000}},{"k":"stat_1","t":3,"lbl":"능력치 노드","req":1,"cost":{"item_char_skill_level_1_6":5,"item_gold":1000}},{"k":"stat_3","t":3,"lbl":"능력치 노드","req":2,"cost":{"item_char_skill_level_1_6":10,"item_gold":1800}},{"k":"stat_5","t":3,"lbl":"능력치 노드","req":3,"cost":{"item_char_skill_level_7_12":10,"item_gold":6000}},{"k":"stat_7","t":3,"lbl":"능력치 노드","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":12000}},{"k":"talent_0_1","t":4,"lbl":"재능 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":12,"item_gold":2400}},{"k":"talent_0_2","t":4,"lbl":"재능 1 · 2단계","req":2,"cost":{"item_char_skill_level_1_6":40,"item_gold":8600}},{"k":"talent_1_1","t":4,"lbl":"재능 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":48,"item_gold":10000}},{"k":"talent_1_2","t":4,"lbl":"재능 2 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":28,"item_gold":24000}},{"k":"fac_0_1","t":5,"lbl":"기반시설 특성 1 · 1단계","req":1,"cost":{"item_char_skill_level_1_6":6,"item_gold":1600}},{"k":"fac_1_1","t":5,"lbl":"기반시설 특성 2 · 1단계","req":2,"cost":{"item_char_skill_level_1_6":12,"item_gold":3000}},{"k":"fac_0_2","t":5,"lbl":"기반시설 특성 1 · 2단계","req":3,"cost":{"item_char_skill_level_7_12":12,"item_gold":8000}},{"k":"fac_1_2","t":5,"lbl":"기반시설 특성 2 · 2단계","req":4,"cost":{"item_char_skill_level_7_12":20,"item_gold":20000}}];
+
+/* ══════════════════ 상태 ══════════════════ */
+function blankChar(){
+  return { owned:false, plan:false,
+    cur:{lv:1, br:0, sk:[1,1,1,1], nd:{}},
+    tgt:{preset:'jun', lv:80, br:4, sk:[9,9,9,9], nd:null} }; // nd:null = 프리셋(전체)
+}
+let S = { chars:{}, inv:{}, custom:[], ui:{tab:'ops', fStatus:'all', fElem:'all', fRar:'all', sort:'default'} };
+let ROSTER = [];
+
+function buildRoster(){
+  S.custom = S.custom||[];
+  ROSTER = CORE.chars.concat(S.custom.map(d=> Object.assign({}, d, {en:d.en||'CUSTOM', icon:d.icon||'', nodes:CUSTOM_NODES, isCustom:true})));
+  for(const k in byId) delete byId[k];
+  ROSTER.forEach(c=> byId[c.id]=c);
+  ROSTER.forEach(c=>{ if(!S.chars[c.id]) S.chars[c.id]=blankChar(); });
+}
+function loadState(){
+  const raw = Store.get(SKEY);
+  if(raw){ try{ const p = JSON.parse(raw); S = Object.assign(S, p); }catch(e){} }
+  buildRoster();
+  if(!raw && S.chars['chr_0002_endminm']) S.chars['chr_0002_endminm'].owned = true; // 관리자는 기본 보유
+}
+let saveT = null;
+function save(){ clearTimeout(saveT); saveT = setTimeout(()=>Store.set(SKEY, JSON.stringify(S)), 250); }
+
+/* ══════════════════ 계산 엔진 ══════════════════ */
+const byId = {};
+
+function add(map, id, n){ if(!n) return; map[id] = (map[id]||0) + n; }
+
+function expBetween(a, b){ // 레벨 a → b : {low, high, gold}
+  let low=0, high=0, gold=0;
+  for(let l=a; l<b; l++){
+    const e = CORE.exp[l-1]; // l → l+1
+    gold += e.gold;
+    if(l < 60) low += e.exp; else high += e.exp;
+  }
+  return {low, high, gold};
+}
+
+/* 특정 캐릭터의 cur→tgt 필요 재료 계산 */
+function needOf(c, st){
+  const need = {}; const cur = st.cur, tgt = effTarget(c, st);
+  // 레벨
+  if(tgt.lv > cur.lv){
+    const e = expBetween(cur.lv, tgt.lv);
+    add(need,'EXP_LOW', e.low); add(need,'EXP_HIGH', e.high); add(need,'item_gold', e.gold);
+  }
+  // 정예화
+  for(let b = cur.br; b < tgt.br; b++){
+    const row = CORE.breaks[b];
+    for(const k in row){
+      let id = k;
+      if(k==='E4SPEC') id = c.e4spec;
+      if(k==='GMUSH')  id = c.mush;
+      add(need, id, row[k]);
+    }
+  }
+  // 스킬 4종
+  SKILLS.forEach((sk,i)=>{
+    const from = cur.sk[i], to = tgt.sk[i];
+    for(const row of CORE.skillRows){
+      if(row.lv > from && row.lv <= to){
+        add(need,'item_gold', row.gold);
+        for(const k in row.items){
+          let id = k;
+          if(k==='SPEC')   id = (sk.spec==='A'? c.specA : c.specB);
+          if(k==='GPLANT') id = c.gplant;
+          add(need, id, row.items[k]);
+        }
+      }
+    }
+  });
+  // 노드 (재능·능력치·기반시설·장비 해금)
+  const curNd = cur.nd||{}, tgtNd = tgt.nd;
+  c.nodes.forEach(nd=>{
+    const want = tgtNd===null ? true : !!tgtNd[nd.k];
+    if(want && !curNd[nd.k]){
+      for(const k in nd.cost) add(need, k, nd.cost[k]);
+    }
+  });
+  return need;
+}
+
+/* 프리셋 반영 목표 */
+function presetTarget(kind){
+  if(kind==='jong') return {preset:'jong', lv:90, br:4, sk:[12,12,12,12], nd:null};
+  return {preset:'jun', lv:80, br:4, sk:[9,9,9,9], nd:null};
+}
+function effTarget(c, st){
+  const t = st.tgt;
+  if(t.preset==='jong') return presetTarget('jong');
+  if(t.preset==='jun')  return presetTarget('jun');
+  return t; // custom
+}
+/* 현재 상태가 목표(또는 프리셋)를 충족하는지 */
+function meets(c, st, tgt){
+  const cur = st.cur;
+  if(cur.lv < tgt.lv || cur.br < tgt.br) return false;
+  for(let i=0;i<4;i++) if(cur.sk[i] < tgt.sk[i]) return false;
+  for(const nd of c.nodes){
+    const want = tgt.nd===null ? true : !!tgt.nd[nd.k];
+    if(want && !(cur.nd||{})[nd.k]) return false;
+  }
+  return true;
+}
+function statusOf(c, st){
+  if(!st.owned) return 'no';
+  if(meets(c, st, presetTarget('jong'))) return 'jong';
+  if(meets(c, st, presetTarget('jun')))  return 'jun';
+  if(st.plan) return 'grow';
+  return 'raw';
+}
+const ST_LB = {jong:'종결', jun:'준종결', grow:'육성중', raw:'미육성', no:'미보유'};
+
+/* 플랜 대상 전체 합산 */
+function totalNeed(){
+  const total = {}; const per = {}; // per[item] = [{char, n}]
+  ROSTER.forEach(c=>{
+    const st = S.chars[c.id];
+    if(!st.owned || !st.plan) return;
+    const n = needOf(c, st);
+    for(const k in n){
+      add(total, k, n[k]);
+      (per[k] = per[k]||[]).push({c, n:n[k]});
+    }
+  });
+  return {total, per};
+}
+function invOf(id){
+  if(id==='EXP_LOW')  return EXP_ITEMS_LOW.reduce((s,k)=> s + (S.inv[k]||0)*ITEMS[k].v, 0);
+  if(id==='EXP_HIGH') return EXP_ITEMS_HIGH.reduce((s,k)=> s + (S.inv[k]||0)*ITEMS[k].v, 0);
+  return S.inv[id]||0;
+}
+const fmt = n => n.toLocaleString('ko-KR');
+const fmtExp = n => n >= 10000 ? (Math.round(n/1000)/10)+'만' : fmt(n);
+
+/* ══════════════════ 공용 렌더 조각 ══════════════════ */
+function esc(s){ return String(s).replace(/[&<>"]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+function avatar(c, cls){
+  const custom = (S.chars[c.id]||{}).img;
+  let url = custom || '';
+  if(!url && c.icon) url = c.icon.startsWith('177')
+    ? `https://cdn.prydwen.gg/images/arknights-endfield/characters/${c.icon}.webp`
+    : `https://cdn.prydwen.gg/images/arknights-endfield/characters/${c.icon}_icon.webp`;
+  return `<div class="ava ${cls||''}"><div class="fb">${esc(c.kr[0])}</div>
+    ${url? `<img src="${esc(url)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">`:''}<div class="rr"></div></div>`;
+}
+function matChip(id, qty, opt){
+  const it = ITEMS[id]; if(!it) return '';
+  const o = opt||{};
+  let qhtml = `<span class="qt">${id.startsWith('EXP')? fmtExp(qty) : fmt(qty)}</span>`;
+  if(o.withInv){
+    const have = invOf(id);
+    const lack = Math.max(0, qty - have);
+    const cls = lack>0 ? 'lack':'done2';
+    qhtml = lack>0
+      ? `<span class="qt">부족 ${id.startsWith('EXP')? fmtExp(lack):fmt(lack)}</span> <small>/ ${id.startsWith('EXP')? fmtExp(qty):fmt(qty)}</small>`
+      : `<span class="qt">완료</span> <small>/ ${id.startsWith('EXP')? fmtExp(qty):fmt(qty)}</small>`;
+    return `<div class="mat tier${it.t} ${cls}" title="${esc(it.n)} · 필요 ${fmt(qty)} / 보유 ${fmt(have)}">
+      <div class="ic"><span class="gl">${it.g}</span>${itemImg(id)}</div><div class="tx"><div class="nm">${esc(it.n)}</div><div>${qhtml}</div></div></div>`;
+  }
+  return `<div class="mat tier${it.t}" title="${esc(it.n)}${it.src? ' · '+esc(it.src):''}">
+    <div class="ic"><span class="gl">${it.g}</span>${itemImg(id)}</div><div class="tx"><div class="nm">${esc(it.n)}</div><div>${qhtml}</div></div></div>`;
+}
+const MAT_ORDER = ['item_gold','EXP_LOW','EXP_HIGH','item_char_break_stage_1_2','item_char_break_stage_3_4',
+ 'item_char_skill_level_1_6','item_char_skill_level_7_12','item_char_skill_crown',
+ 'item_char_skill_specialize_1','item_char_skill_specialize_2','item_char_skill_specialize_3','item_char_skill_specialize_4','item_char_skill_specialize_5',
+ 'item_plant_mushroom_1_1','item_plant_mushroom_1_2','item_plant_mushroom_1_3','item_plant_mushroom_2_1','item_plant_mushroom_2_2',
+ 'item_plant_crylplant_1_1','item_plant_crylplant_1_2','item_plant_crylplant_1_3','item_plant_crylplant_2_1','item_plant_crylplant_2_2'];
+function sortMats(need){ return MAT_ORDER.filter(k=> need[k]); }
+
+function rail(c, st){
+  const marks = [20,40,60,80,90];
+  const tgt = effTarget(c, st);
+  const pos = lv => (lv-1)/89*100;
+  let t = `<div class="rail" title="현재 Lv.${st.cur.lv} / 목표 Lv.${tgt.lv}"><div class="bar"></div>`;
+  t += `<div class="tgt" style="width:${pos(tgt.lv)}%"></div>`;
+  t += `<div class="fill" style="width:${pos(st.cur.lv)}%"></div>`;
+  marks.forEach((m,i)=>{ t += `<div class="tick ${st.cur.br>i? 'done':''}" style="left:${pos(m)}%"></div><div class="cap" style="left:${pos(m)}%">${m}</div>`; });
+  t += `<div class="cur" style="left:${pos(st.cur.lv)}%"></div></div>`;
+  return t;
+}
+
+/* ══════════════════ 앱 ══════════════════ */
+const App = {
+  openId:null,
+
+  init(){
+    loadState();
+    document.getElementById('save-ind').textContent = Store.ok ? '자동 저장 ON' : '임시 모드(내보내기 권장)';
+    if(!Store.ok) document.getElementById('save-ind').style.color = 'var(--red)';
+    this.renderTabs(); this.render();
+  },
+
+  tabs:[ ['ops','01','오퍼레이터'], ['sum','02','재료 정산'], ['farm','03','파밍 플랜'], ['data','04','데이터'] ],
+  renderTabs(){
+    document.getElementById('tabs').innerHTML = this.tabs.map(t=>
+      `<button class="tab ${S.ui.tab===t[0]?'on':''}" onclick="App.go('${t[0]}')"><span class="n">${t[1]}</span>${t[2]}</button>`).join('');
+  },
+  go(tab){ S.ui.tab = tab; save(); this.renderTabs(); this.render(); window.scrollTo({top:0}); },
+  render(){
+    const m = document.getElementById('main');
+    if(S.ui.tab==='ops') m.innerHTML = this.viewOps();
+    else if(S.ui.tab==='sum') m.innerHTML = this.viewSum();
+    else if(S.ui.tab==='farm') m.innerHTML = this.viewFarm();
+    else m.innerHTML = this.viewData();
+  },
+
+  /* ── 탭 1 : 오퍼레이터 ── */
+  viewOps(){
+    const counts = {all:0,jong:0,jun:0,grow:0,raw:0,no:0};
+    ROSTER.forEach(c=>{ counts.all++; counts[statusOf(c, S.chars[c.id])]++; });
+    const fs = S.ui.fStatus, fe = S.ui.fElem, fr = S.ui.fRar;
+    const stBtn = (k,l)=>`<button class="fbtn ${fs===k?'on':''}" onclick="App.setF('fStatus','${k}')">${l}<span class="c">${counts[k]??''}</span></button>`;
+    const elBtn = (k,l)=>`<button class="fbtn ${fe===k?'on':''}" onclick="App.setF('fElem','${k}')">${l}</button>`;
+    const rrBtn = (k,l)=>`<button class="fbtn ${fr===k?'on':''}" onclick="App.setF('fRar','${k}')">${l}</button>`;
+    let h = `<div class="fbar">
+      <input type="search" class="srch" placeholder="이름 검색" value="${esc(S.ui.q||'')}" oninput="App.setQ(this.value)">
+      <div class="fgrp">${stBtn('all','전체')}${stBtn('jong','종결')}${stBtn('jun','준종결')}${stBtn('grow','육성중')}${stBtn('raw','미육성')}${stBtn('no','미보유')}</div>
+      <div class="fgrp">${elBtn('all','속성 전체')}${['물리','열기','냉기','전기','자연'].map(e=>elBtn(e,`${elIcon(e,12)} ${e}`)).join('')}</div>
+      <div class="fgrp">${rrBtn('all','★ 전체')}${rrBtn('6','★6')}${rrBtn('5','★5')}${rrBtn('4','★4')}</div>
+      <select onchange="App.setF('sort',this.value)" title="정렬">
+        ${[['default','기본 순'],['rar','성급 높은 순'],['name','이름순'],['lv','레벨 높은 순'],['prog','육성 덜 된 순'],['plan','플랜 우선']].map(o=>`<option value="${o[0]}" ${S.ui.sort===o[0]?'selected':''}>${o[1]}</option>`).join('')}
+      </select>
+    </div>`;
+    let list = ROSTER.filter(c=>{
+      const st = S.chars[c.id]; const stat = statusOf(c, st);
+      if(fs!=='all' && stat!==fs) return false;
+      if(fe!=='all' && c.elem!==fe) return false;
+      if(fr!=='all' && String(c.rar)!==fr) return false;
+      const q=(S.ui.q||'').trim().toLowerCase();
+      if(q && !c.kr.toLowerCase().includes(q) && !c.en.toLowerCase().includes(q)) return false;
+      return true;
+    });
+    const stRank = {no:0,raw:1,grow:2,jun:3,jong:4};
+    const sorters = {
+      rar:(a,b)=> b.rar-a.rar || a.kr.localeCompare(b.kr,'ko'),
+      name:(a,b)=> a.kr.localeCompare(b.kr,'ko'),
+      lv:(a,b)=> S.chars[b.id].cur.lv - S.chars[a.id].cur.lv,
+      prog:(a,b)=> stRank[statusOf(a,S.chars[a.id])] - stRank[statusOf(b,S.chars[b.id])],
+      plan:(a,b)=> (S.chars[b.id].plan?1:0)-(S.chars[a.id].plan?1:0),
+    };
+    if(sorters[S.ui.sort]) list = list.slice().sort(sorters[S.ui.sort]);
+    h += `<div class="grid">` + list.map(c=> this.card(c)).join('')
+       + `<button class="card addcard" onclick="App.editCustom(null)"><span class="plus">＋</span><b>신규 오퍼레이터 추가</b><span class="note">신캐가 나오면 재료만 골라서<br>직접 등록할 수 있어요</span></button>`
+       + `</div>`;
+    if(!list.length) h += `<div class="empty" style="margin-top:12px">조건에 맞는 오퍼레이터가 없습니다.</div>`;
+    return h;
+  },
+  setF(k,v){ S.ui[k]=v; save(); this.render(); },
+  setQ(v){ S.ui.q=v; save();
+    // 검색 입력은 포커스 유지 위해 그리드만 교체하지 않고 디바운스 렌더
+    clearTimeout(this._qt); this._qt=setTimeout(()=>{ const el=document.activeElement; this.render();
+      const s2=document.querySelector('.srch'); if(s2&&el&&el.classList&&el.classList.contains('srch')){ s2.focus(); const L=s2.value.length; s2.setSelectionRange(L,L);} },200); },
+
+  card(c){
+    const st = S.chars[c.id];
+    const stat = statusOf(c, st);
+    const tgt = effTarget(c, st);
+    const presetName = st.tgt.preset==='jong' ? '종결' : st.tgt.preset==='jun' ? '준종결' : '커스텀';
+    return `<div class="card r${c.rar} ${st.owned?'':'unowned'} ${st.plan&&st.owned?'plan':''}" onclick="App.openDrawer('${c.id}')">
+      <div class="c-top">
+        ${avatar(c)}
+        <div class="c-meta">
+          <div class="c-name">${esc(c.kr)}${st.memo? ' <span class="memomark" title="메모 있음">✎</span>':''} <span class="st ${stat}">${ST_LB[stat]}</span></div>
+          <div class="c-sub"><span class="stars">${'★'.repeat(c.rar)}</span><span>${elIcon(c.elem,12)} ${c.elem}</span><span>${c.cls}</span></div>
+        </div>
+      </div>
+      <div class="c-state">
+        <b>Lv.${st.cur.lv}</b> · 정예 ${st.cur.br} · 스킬 <b>${st.cur.sk.join('/')}</b>
+        ${st.owned? `<span class="tgtb ${st.tgt.preset}" style="margin-left:auto">목표 · ${presetName}</span>`:''}
+      </div>
+      ${rail(c, st)}
+      <div class="c-foot" onclick="event.stopPropagation()">
+        <button class="btn sm ${st.owned?'yl':''}" onclick="App.toggleOwned('${c.id}')">${st.owned?'보유 중':'미보유'}</button>
+        <button class="btn sm ${st.plan?'yl':''}" ${st.owned?'':'disabled'} onclick="App.togglePlan('${c.id}')">${st.plan?'육성 플랜 ✓':'플랜에 추가'}</button>
+      </div>
+    </div>`;
+  },
+  toggleOwned(id){ const st=S.chars[id]; st.owned=!st.owned; if(!st.owned) st.plan=false; save(); this.render(); },
+  togglePlan(id){ const st=S.chars[id]; st.plan=!st.plan; save(); this.render(); if(this.openId===id) this.renderDrawer(); },
+
+  /* ── 드로어(캐릭터 상세) ── */
+  openDrawer(id){ this.openId=id; this.renderDrawer();
+    document.getElementById('scrim').classList.add('open');
+    document.getElementById('drawer').classList.add('open'); },
+  closeDrawer(){ this.openId=null;
+    document.getElementById('scrim').classList.remove('open');
+    document.getElementById('drawer').classList.remove('open');
+    this.render(); },
+
+  renderDrawer(){
+    const c = byId[this.openId]; if(!c) return;
+    const st = S.chars[c.id];
+    const tgt = effTarget(c, st);
+    const need = needOf(c, st);
+    const keys = sortMats(need);
+    const custom = st.tgt.preset==='custom';
+    const stat = statusOf(c, st);
+    const d = document.getElementById('drawer');
+
+    const segBr = (val, fn, minB)=> `<div class="seg">${[0,1,2,3,4].map(b=>
+      `<button class="${val===b?'on':''}" ${b<(minB||0)?'disabled':''} onclick="${fn}(${b})">${b===0?'E0':b+'차'}</button>`).join('')}</div>`;
+
+    const skEditor = (obj, who)=> SKILLS.map((sk,i)=>{
+      const cap = who==='cur' ? SKCAP[st.cur.br] : SKCAP[tgt.br];
+      const v = obj.sk[i];
+      const disMinus = who==='tgt' && !custom;
+      return `<div class="skrow"><div class="lb2">${sk.kr}</div>
+        <div class="stp">
+          <button onclick="App.skDelta('${who}',${i},-1)" ${disMinus?'disabled':''}>−</button>
+          <input type="range" min="1" max="${cap}" value="${v}" ${disMinus?'disabled':''} oninput="App.skLive('${who}',${i},this)" onchange="App.skSet('${who}',${i},this.value)">
+          <button onclick="App.skDelta('${who}',${i},1)" ${disMinus?'disabled':''}>＋</button>
+          <span class="v"><span id="skv-${who}-${i}">${v}</span> <span class="cap2">/ ${cap}</span></span>
+        </div></div>`;
+    }).join('');
+
+    const ndList = (who)=>{
+      const obj = who==='cur' ? (st.cur.nd||{}) : null;
+      const tnd = tgt.nd; // null = all
+      return `<div class="nodes">` + c.nodes.map(nd=>{
+        const checked = who==='cur' ? !!(st.cur.nd||{})[nd.k] : (tnd===null ? true : !!tnd[nd.k]);
+        const locked = who==='cur' ? nd.req > st.cur.br : (custom ? nd.req > st.tgt.br : false);
+        const dis = who==='tgt' && !custom;
+        const costTx = Object.keys(nd.cost).length
+          ? Object.entries(nd.cost).map(([k,v])=> (ITEMS[k]?ITEMS[k].n.split(' ')[0]:k)+' '+fmt(v)).join(' · ')
+          : '자동 해금';
+        return `<label class="nd ${checked?'onn':''} ${locked?'locked':''}" title="${esc(costTx)}${nd.req? ' · '+nd.req+'차 정예 필요':''}">
+          <input type="checkbox" ${checked?'checked':''} ${dis||locked?'disabled':''}
+            onchange="App.ndSet('${who}','${nd.k}',this.checked)">
+          ${nd.lbl}${nd.req?` <span class="rq">${nd.req}차</span>`:''}
+        </label>`;
+      }).join('') + `</div>`;
+    };
+
+    const bossA = ITEMS[c.specA], bossB = ITEMS[c.specB], bossE = ITEMS[c.e4spec];
+
+    d.innerHTML = `
+      <div class="d-hd"><div class="hz"></div><div class="d-hd-in">
+        <button class="ava-btn" title="클릭해서 이미지 변경" onclick="App.imgPanel()">${avatar(c, 'r'+c.rar)}</button>
+        <div>
+          <div class="d-name">${esc(c.kr)} <span class="st ${stat}" style="vertical-align:4px">${ST_LB[stat]}</span></div>
+          <div class="d-sub"><span class="stars r${c.rar}">${'★'.repeat(c.rar)}</span>
+            <span>${elIcon(c.elem,13)} ${c.elem}</span><span>${c.cls}</span><span>${c.wpn}</span><span class="mono" style="font-size:10px;color:var(--faint)">${c.en}</span></div>
+          <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn sm ${st.owned?'yl':''}" onclick="App.toggleOwned('${c.id}');App.renderDrawer()">${st.owned?'보유 중':'미보유'}</button>
+            <button class="btn sm ${st.plan?'yl':''}" ${st.owned?'':'disabled'} onclick="App.togglePlan('${c.id}')">${st.plan?'육성 플랜 ✓':'플랜에 추가'}</button>
+          </div>
+        </div>
+        <button class="d-x" onclick="App.closeDrawer()" aria-label="닫기">✕</button>
+      </div>
+      <div class="imgpanel" id="imgpanel" hidden>
+        <div class="note" style="margin-bottom:6px">오퍼레이터 이미지 변경 — URL을 넣거나 사진 파일을 올리세요 (자동 축소 저장)</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <input type="url" id="img-url" placeholder="https:// 이미지 주소" style="flex:1;min-width:180px" value="${esc(st.img&&!st.img.startsWith('data:')? st.img:'')}">
+          <button class="btn sm yl" onclick="App.imgSetUrl()">적용</button>
+          <button class="btn sm" onclick="document.getElementById('img-file').click()">사진 올리기</button>
+          <button class="btn sm ghost" onclick="App.imgReset()">기본으로</button>
+          <input type="file" id="img-file" accept="image/*" style="display:none" onchange="App.imgFile(this)">
+        </div>
+      </div></div>
+      <div class="d-body">
+        ${rail(c, st)}
+
+        <div class="sec-t" style="margin-top:20px">필요 재료
+          <span class="segmini"><button class="${!S.ui.needInv?'on':''}" onclick="App.setNeedInv(false)">전체 필요량</button><button class="${S.ui.needInv?'on':''}" onclick="App.setNeedInv(true)">보유 반영</button></span>
+          <small>${S.ui.needInv? '재고 차감 후 부족량':'현재 → 목표 원값'}</small></div>
+        <div class="panel" style="padding:12px">
+          ${keys.length? `<div class="mats mats-c">${keys.map(k=> matChip(k, need[k], {withInv:S.ui.needInv})).join('')}</div>`
+            : `<div class="note ok-t">목표를 이미 달성했습니다. 추가 재료가 필요 없습니다.</div>`}
+        </div>
+
+        <div class="d-cols" style="margin-top:16px">
+          <div class="ed">
+            <h4><b>현재 상태</b> CURRENT</h4>
+            <div class="row"><span class="lb">레벨</span>
+              <div class="stp"><button onclick="App.lvDelta('cur',-1)">−</button>
+              <input type="range" min="1" max="90" value="${st.cur.lv}" oninput="App.lvLive('cur',this)" onchange="App.lvSet('cur',this.value)">
+              <button onclick="App.lvDelta('cur',1)">＋</button>
+              <input type="number" id="lvnum-cur" min="1" max="90" value="${st.cur.lv}" onchange="App.lvSet('cur',this.value)"></div></div>
+            <div class="row"><span class="lb">정예화</span>${segBr(st.cur.br,'App.brSetCur')}</div>
+            <div class="hr"></div>
+            ${skEditor(st.cur,'cur')}
+            <div class="hr"></div>
+            <div style="font-size:11px;color:var(--dim);margin-bottom:6px;display:flex;align-items:center;gap:6px">해금한 노드 체크 (재능 · 능력치 · 기반시설 · 장비)
+              <span style="margin-left:auto;display:flex;gap:4px"><button class="btn sm ghost" onclick="App.ndAll('cur',true)">전체 체크</button><button class="btn sm ghost" onclick="App.ndAll('cur',false)">전체 해제</button></span></div>
+            ${ndList('cur')}
+          </div>
+          <div class="ed tgt-ed">
+            <h4><b>목표 설정</b> TARGET</h4>
+            <div class="preset-r">
+              <button class="btn sm ${st.tgt.preset==='jong'?'yl':''}" onclick="App.setPreset('jong')">종결 (90 / M3 / 전부)</button>
+              <button class="btn sm ${st.tgt.preset==='jun'?'yl':''}" onclick="App.setPreset('jun')">준종결 (80 / 9999 / 재능全)</button>
+              <button class="btn sm ${custom?'yl':''}" onclick="App.setPreset('custom')">커스텀</button>
+            </div>
+            <div class="row"><span class="lb">레벨</span>
+              <div class="stp"><button onclick="App.lvDelta('tgt',-1)" ${custom?'':'disabled'}>−</button>
+              <input type="range" min="1" max="90" value="${tgt.lv}" ${custom?'':'disabled'} oninput="App.lvLive('tgt',this)" onchange="App.lvSet('tgt',this.value)">
+              <button onclick="App.lvDelta('tgt',1)" ${custom?'':'disabled'}>＋</button>
+              <input type="number" id="lvnum-tgt" min="1" max="90" value="${tgt.lv}" ${custom?'':'disabled'} onchange="App.lvSet('tgt',this.value)"></div></div>
+            <div class="row"><span class="lb">정예화</span>${custom? segBr(st.tgt.br,'App.brSetTgt') : `<span class="chip">${BR_LB[tgt.br]}</span>`}</div>
+            <div class="hr"></div>
+            ${skEditor(tgt,'tgt')}
+            <div class="hr"></div>
+            <div style="font-size:11px;color:var(--dim);margin-bottom:6px;display:flex;align-items:center;gap:6px">${custom?'목표에 포함할 노드 선택':'프리셋: 모든 노드 포함'}
+              ${custom? `<span style="margin-left:auto;display:flex;gap:4px"><button class="btn sm ghost" onclick="App.ndAll('tgt',true)">전체 체크</button><button class="btn sm ghost" onclick="App.ndAll('tgt',false)">전체 해제</button></span>`:''}</div>
+            ${ndList('tgt')}
+          </div>
+        </div>
+
+        <div class="sec-t">이 오퍼레이터의 전용 파밍처 <small>캐릭터별 고정 재료</small></div>
+        <div class="panel" style="padding:14px">
+          <div class="note" style="display:grid;gap:6px">
+            <div><span class="tag" style="background:#33280c;color:var(--t5)">4차 정예화</span> ${esc(bossE.n)} — <b class="yl-t">${esc(BOSSES[bossE.boss].stage)}</b> / ${esc(BOSSES[bossE.boss].deep)}</div>
+            <div><span class="tag" style="background:#33280c;color:var(--t5)">마스터리 A</span> 전투 스킬 · 궁극기 → ${esc(bossA.n)} — <b class="yl-t">${esc(BOSSES[bossA.boss].stage)}</b></div>
+            <div><span class="tag" style="background:#33280c;color:var(--t5)">마스터리 B</span> 일반 공격 · 연계 스킬 → ${esc(bossB.n)} — <b class="yl-t">${esc(BOSSES[bossB.boss].stage)}</b></div>
+            <div><span class="tag" style="background:#26301a;color:var(--el-nat)">채집</span> 정예화 버섯: ${esc(ITEMS[c.mush].n)} · 마스터리 결정식물: ${esc(ITEMS[c.gplant].n)}</div>
+          </div>
+        </div>
+
+        <div class="sec-t">메모 <small>이 오퍼레이터에 대한 개인 기록 · 자동 저장</small></div>
+        <textarea class="memo" placeholder="예) 무기 돌파 재료도 모아야 함 / 세트 옵션 정리 등" oninput="App.memoSet(this.value)">${esc(st.memo||'')}</textarea>
+        ${c.isCustom? `<div style="margin-top:12px;display:flex;gap:6px">
+          <button class="btn" onclick="App.editCustom('${c.id}')">직접 추가한 오퍼레이터 — 정보 수정</button>
+          <button class="btn danger" onclick="App.delCustom('${c.id}')">삭제</button></div>`:''}
+      </div>`;
+  },
+  memoSet(v){ const st=this._st(); st.memo=v; save();
+    // 카드의 메모 표시 갱신은 드로어 닫을 때 render로 반영
+  },
+  setNeedInv(v){ S.ui.needInv=v; save(); this.renderDrawer(); },
+  imgPanel(){ const el=document.getElementById('imgpanel'); if(el) el.hidden=!el.hidden; },
+  imgSetUrl(){ const v=document.getElementById('img-url').value.trim(); const st=this._st();
+    if(!v){ this.toast('이미지 주소를 입력하세요'); return; }
+    st.img=v; save(); this.renderDrawer(); this.toast('이미지를 적용했습니다'); },
+  imgReset(){ const st=this._st(); delete st.img; save(); this.renderDrawer(); this.toast('기본 이미지로 되돌렸습니다'); },
+  imgFile(input){ const f=input.files[0]; if(!f) return; const st=this._st();
+    const img=new Image(); const rd=new FileReader();
+    rd.onload=()=>{ img.onload=()=>{ const S2=144, cv=document.createElement('canvas'); cv.width=S2; cv.height=S2;
+        const x=cv.getContext('2d'); const r=Math.max(S2/img.width,S2/img.height);
+        x.drawImage(img,(S2-img.width*r)/2,(S2-img.height*r)/2,img.width*r,img.height*r);
+        st.img=cv.toDataURL('image/jpeg',.85); save(); this.renderDrawer(); this.toast('사진을 적용했습니다'); };
+      img.src=rd.result; };
+    rd.readAsDataURL(f); input.value=''; },
+
+  /* ── 커스텀 오퍼레이터 추가/수정 ── */
+  editCustom(id){
+    const d = document.getElementById('drawer');
+    const cur = id? S.custom.find(x=>x.id===id) : null;
+    const v = cur || {kr:'', rar:6, elem:'열기', cls:'가드', wpn:'한손검',
+      e4spec:'item_char_skill_specialize_1', specA:'item_char_skill_specialize_1', specB:'item_char_skill_specialize_2',
+      mush:'item_plant_mushroom_2_2', gplant:'item_plant_crylplant_2_2', img:''};
+    const specOpt = sel => [1,2,3,4,5].map(n=>{const k='item_char_skill_specialize_'+n;
+      return `<option value="${k}" ${sel===k?'selected':''}>${ITEMS[k].n}</option>`;}).join('');
+    const opt = (arr,sel)=> arr.map(x=>`<option ${sel===x?'selected':''}>${x}</option>`).join('');
+    const itemOpt = (ids,sel)=> ids.map(k=>`<option value="${k}" ${sel===k?'selected':''}>${ITEMS[k].n}</option>`).join('');
+    d.innerHTML = `
+      <div class="d-hd"><div class="hz"></div><div class="d-hd-in">
+        <div><div class="d-name">${cur? '오퍼레이터 정보 수정':'신규 오퍼레이터 추가'}</div>
+          <div class="d-sub">공통 비용은 자동 적용 — 캐릭터마다 다른 재료만 골라 주세요</div></div>
+        <button class="d-x" onclick="App.closeDrawer()" aria-label="닫기">✕</button>
+      </div></div>
+      <div class="d-body"><div class="ed" style="max-width:560px">
+        <div class="frow"><label>이름 *</label><input id="cf-kr" value="${esc(v.kr)}" placeholder="예) 카뮤" maxlength="20"></div>
+        <div class="frow"><label>성급</label><select id="cf-rar">${[6,5,4].map(r=>`<option value="${r}" ${v.rar===r?'selected':''}>★${r}</option>`).join('')}</select>
+          <label style="margin-left:10px">속성</label><select id="cf-elem">${opt(['물리','열기','냉기','전기','자연'],v.elem)}</select></div>
+        <div class="frow"><label>직업</label><select id="cf-cls">${opt(['가드','디펜더','서포터','캐스터','뱅가드','스트라이커'],v.cls)}</select>
+          <label style="margin-left:10px">무기</label><select id="cf-wpn">${opt(['한손검','양손검','장창','핸드캐논','아츠 유닛'],v.wpn)}</select></div>
+        <div class="hr"></div>
+        <div class="frow"><label>4차 정예화 재료</label><select id="cf-e4">${specOpt(v.e4spec)}</select></div>
+        <div class="frow"><label>마스터리 A<br><small>전투 스킬·궁극기</small></label><select id="cf-sa">${specOpt(v.specA)}</select></div>
+        <div class="frow"><label>마스터리 B<br><small>일반 공격·연계</small></label><select id="cf-sb">${specOpt(v.specB)}</select></div>
+        <div class="frow"><label>황금 버섯 (4차 정예화)</label><select id="cf-mush">${itemOpt(['item_plant_mushroom_2_1','item_plant_mushroom_2_2'],v.mush)}</select></div>
+        <div class="frow"><label>황금 결정식물 (마스터리)</label><select id="cf-gp">${itemOpt(['item_plant_crylplant_2_1','item_plant_crylplant_2_2'],v.gplant)}</select></div>
+        <div class="frow"><label>이미지 URL <small>(선택)</small></label><input id="cf-img" type="url" value="${esc(v.img&&!String(v.img).startsWith('data:')? v.img:'')}" placeholder="https:// — 비워두면 이니셜 표시, 나중에 상세에서 사진 업로드도 가능"></div>
+        <div style="display:flex;gap:6px;margin-top:14px">
+          <button class="btn yl" onclick="App.saveCustom('${id||''}')">${cur? '수정 저장':'추가하기'}</button>
+          <button class="btn" onclick="App.closeDrawer()">취소</button>
+        </div>
+        <div class="note" style="margin-top:12px">노드(재능·능력치·기반시설·장비 조합) 구성은 가장 일반적인 표준 트리(15개 노드)로 계산됩니다. 실제와 1~2개 다를 수 있으니 참고치로 봐 주세요.</div>
+      </div></div>`;
+    document.getElementById('scrim').classList.add('open');
+    d.classList.add('open');
+    this.openId = null;
+  },
+  saveCustom(id){
+    const g = x=> document.getElementById(x).value;
+    const kr = g('cf-kr').trim();
+    if(!kr){ this.toast('이름을 입력해 주세요'); return; }
+    const def = { id: id || ('cst_'+Date.now()), kr, rar:+g('cf-rar'), elem:g('cf-elem'), cls:g('cf-cls'), wpn:g('cf-wpn'),
+      e4spec:g('cf-e4'), specA:g('cf-sa'), specB:g('cf-sb'), mush:g('cf-mush'), gplant:g('cf-gp'), img:'' };
+    const url = g('cf-img').trim();
+    if(id){ const i=S.custom.findIndex(x=>x.id===id); const old=S.custom[i]; S.custom[i]=def; }
+    else S.custom.push(def);
+    buildRoster();
+    if(url) S.chars[def.id].img = url;
+    save(); this.closeDrawer(); this.toast(id? '수정했습니다':kr+' 추가 완료'); },
+  delCustom(id){ if(!confirm('직접 추가한 오퍼레이터를 삭제할까요? (진행 기록도 함께 삭제)')) return;
+    S.custom = S.custom.filter(x=>x.id!==id); delete S.chars[id];
+    buildRoster(); save(); this.closeDrawer(); this.toast('삭제했습니다'); },
+
+  /* 편집 핸들러 */
+  _st(){ return S.chars[this.openId]; },
+  _c(){ return byId[this.openId]; },
+  clampCur(){ const st=this._st();
+    st.cur.lv = Math.min(Math.max(1, st.cur.lv|0), CAPS[st.cur.br]);
+    st.cur.sk = st.cur.sk.map(v=> Math.min(Math.max(1,v|0), SKCAP[st.cur.br]));
+    const c=this._c(); const nd=st.cur.nd||{};
+    c.nodes.forEach(n=>{ if(n.req> st.cur.br) delete nd[n.k]; });
+  },
+  clampTgt(){ const st=this._st(); if(st.tgt.preset!=='custom') return;
+    st.tgt.lv = Math.min(Math.max(1, st.tgt.lv|0), CAPS[st.tgt.br]);
+    st.tgt.sk = st.tgt.sk.map(v=> Math.min(Math.max(1,v|0), SKCAP[st.tgt.br]));
+    if(st.tgt.nd){ this._c().nodes.forEach(n=>{ if(n.req> st.tgt.br) delete st.tgt.nd[n.k]; }); }
+  },
+  lvSet(w,v){ const st=this._st(); if(w==='cur'){ st.cur.lv=+v; this.clampCur(); } else { if(st.tgt.preset!=='custom') return; st.tgt.lv=+v; this.clampTgt(); } save(); this.renderDrawer(); },
+  lvLive(w,el){ // 드래그 중: 전체 리렌더 없이 값만 갱신
+    const st=this._st(); const cap = w==='cur'? CAPS[st.cur.br] : CAPS[st.tgt.br];
+    let v = Math.min(Math.max(1, +el.value), cap);
+    if(w==='tgt' && st.tgt.preset!=='custom') return;
+    el.value = v; if(w==='cur') st.cur.lv=v; else st.tgt.lv=v;
+    const num = document.getElementById('lvnum-'+w); if(num) num.value=v; save(); },
+  skLive(w,i,el){
+    const st=this._st(); const cap = w==='cur'? SKCAP[st.cur.br] : SKCAP[st.tgt.br];
+    let v = Math.min(Math.max(1, +el.value), cap);
+    if(w==='tgt' && st.tgt.preset!=='custom') return;
+    el.value = v; if(w==='cur') st.cur.sk[i]=v; else st.tgt.sk[i]=v;
+    const sp = document.getElementById(`skv-${w}-${i}`); if(sp) sp.textContent=v; save(); },
+  lvDelta(w,d){ const st=this._st(); this.lvSet(w, (w==='cur'?st.cur.lv:st.tgt.lv)+d); },
+  brSetCur(b){ const st=App._st(); st.cur.br=b; App.clampCur(); save(); App.renderDrawer(); },
+  brSetTgt(b){ const st=App._st(); st.tgt.br=b; App.clampTgt(); save(); App.renderDrawer(); },
+  skSet(w,i,v){ const st=this._st();
+    if(w==='cur'){ st.cur.sk[i]=Math.min(+v, SKCAP[st.cur.br]); }
+    else { if(st.tgt.preset!=='custom') return; st.tgt.sk[i]=Math.min(+v, SKCAP[st.tgt.br]); }
+    save(); this.renderDrawer(); },
+  skDelta(w,i,d){ const st=this._st(); const v=(w==='cur'?st.cur.sk[i]:st.tgt.sk[i])+d; this.skSet(w,i,Math.max(1,v)); },
+  ndSet(w,k,on){ const st=this._st();
+    if(w==='cur'){ st.cur.nd = st.cur.nd||{}; if(on) st.cur.nd[k]=1; else delete st.cur.nd[k]; }
+    else { if(st.tgt.preset!=='custom') return;
+      if(st.tgt.nd===null){ st.tgt.nd={}; this._c().nodes.forEach(n=>{ if(n.req<=st.tgt.br) st.tgt.nd[n.k]=1; }); }
+      if(on) st.tgt.nd[k]=1; else delete st.tgt.nd[k]; }
+    save(); this.renderDrawer(); },
+  ndAll(w,on){ const st=this._st(); const c=this._c();
+    if(w==='cur'){ st.cur.nd = st.cur.nd||{};
+      c.nodes.forEach(n=>{ if(n.req<=st.cur.br){ if(on) st.cur.nd[n.k]=1; else delete st.cur.nd[n.k]; } }); }
+    else { if(st.tgt.preset!=='custom') return;
+      if(st.tgt.nd===null) st.tgt.nd={};
+      c.nodes.forEach(n=>{ if(n.req<=st.tgt.br){ if(on) st.tgt.nd[n.k]=1; else delete st.tgt.nd[n.k]; } }); }
+    save(); this.renderDrawer(); },
+  setPreset(p){ const st=this._st();
+    if(p==='custom'){
+      const base = effTarget(this._c(), st);
+      st.tgt = {preset:'custom', lv:base.lv, br:base.br, sk:[...base.sk], nd:null};
+      st.tgt.nd = {}; this._c().nodes.forEach(n=> st.tgt.nd[n.k]=1);
+    } else st.tgt = presetTarget(p);
+    save(); this.renderDrawer(); },
+
+  /* ── 탭 2 : 재료 정산 ── */
+  viewSum(){
+    const plans = ROSTER.filter(c=> S.chars[c.id].owned && S.chars[c.id].plan);
+    const {total, per} = totalNeed();
+    const keys = sortMats(total);
+    let lackCnt=0, doneCnt=0;
+    keys.forEach(k=>{ if(invOf(k) >= total[k]) doneCnt++; else lackCnt++; });
+    let h = `<div class="big-stats">
+      <div class="bstat"><div class="k">육성 플랜 오퍼레이터</div><div class="v">${plans.length}<small> 명</small></div></div>
+      <div class="bstat"><div class="k">필요 재료 종류</div><div class="v">${keys.length}<small> 종</small></div></div>
+      <div class="bstat"><div class="k">확보 완료</div><div class="v ok-t">${doneCnt}<small> 종</small></div></div>
+      <div class="bstat"><div class="k">부족</div><div class="v ${lackCnt?'red-t':''}">${lackCnt}<small> 종</small></div></div>
+    </div>`;
+    h += `<div class="note" style="margin-bottom:14px">플랜에 추가된 오퍼레이터: ${plans.length? plans.map(c=>`<span class="chip">${esc(c.kr)} <span class="mono" style="font-size:10px;color:var(--faint)">${S.chars[c.id].tgt.preset==='jong'?'종결':S.chars[c.id].tgt.preset==='jun'?'준종결':'커스텀'}</span></span>`).join(' ') : '<b>없음</b> — 오퍼레이터 탭에서 「플랜에 추가」를 눌러 주세요.'}</div>`;
+    if(!keys.length){ h += `<div class="empty"><b>합산할 재료가 없습니다.</b><br>육성 플랜에 오퍼레이터를 추가하면 전체 필요 재료가 여기에 정리됩니다.</div>`; return h; }
+
+    h += `<div class="sec-t">보유량 입력 &amp; 부족량 <small>+버튼으로 빠르게 채우기 · <b>Shift+클릭 = 감소</b> · 즉시 반영</small></div>`;
+    // 경험치 아이템 개별 입력
+    const expGroup = (title, ids, groupKey)=>{
+      const have = invOf(groupKey), needE = total[groupKey]||0, lackE = Math.max(0, needE-have);
+      let g = `<div class="panel" style="padding:12px"><div class="exph"><b>${title}</b>
+        <span class="mono" style="font-size:11px;color:var(--dim)">등급별 개수를 입력하면 EXP로 합산됩니다</span></div>`;
+      ids.forEach(k=>{ const it=ITEMS[k]; const cnt=S.inv[k]||0;
+        g += `<div class="inv tier${it.t}" style="border:none;border-top:1px solid var(--line);padding:8px 2px">
+          <div class="ic"><span class="gl">${it.g}</span>${itemImg(k)}</div>
+          <div class="mid"><div class="nm">${esc(it.n)}</div><div class="need">개당 ${fmt(it.v)} EXP · 보유분 ${fmtExp(cnt*it.v)} EXP</div></div>
+          <input type="number" min="0" value="${cnt}" onchange="App.invSet('${k}',this.value)">${qBtns(k)}</div>`;
+      });
+      const hiItem = ITEMS[ids[0]];
+      g += `<div class="expsum ${lackE?'':'okline'}">보유 합산 <b class="mono">${fmtExp(have)}</b> EXP · 필요 <b class="mono">${fmtExp(needE)}</b> EXP
+        → ${lackE? `<span class="red-t">부족 <b class="mono">${fmtExp(lackE)}</b> EXP (${esc(hiItem.n)} 약 <b class="mono">${fmt(Math.ceil(lackE/hiItem.v))}</b>개)</span>`
+                 : `<span class="ok-t">확보 완료</span>`}</div></div>`;
+      return g;
+    };
+    h += `<div class="expwrap">
+      ${expGroup('작전 기록 — Lv.1~60 구간', EXP_ITEMS_LOW, 'EXP_LOW')}
+      ${expGroup('인지 매개체 — Lv.60~90 구간', EXP_ITEMS_HIGH, 'EXP_HIGH')}
+    </div>`;
+
+    h += `<div class="sec-t">전체 필요 재료 <small>펼치면 오퍼레이터별 내역</small></div>`;
+    keys.forEach(k=>{
+      const it = ITEMS[k]; const needN = total[k]; const have = invOf(k);
+      const lack = Math.max(0, needN - have);
+      const pct = Math.min(100, needN? have/needN*100 : 100);
+      const isExp = k.startsWith('EXP');
+      const fmtN = isExp? fmtExp : fmt;
+      const invCtl = isExp
+        ? `<span class="mono" style="font-size:11px;color:var(--dim);white-space:nowrap">보유 ${fmtExp(have)}<br><span style="color:var(--faint)">↑ 경험치 패널에서 입력</span></span>`
+        : `<span class="invctl" onclick="event.stopPropagation()"><input type="number" min="0" value="${S.inv[k]||0}" onchange="App.invSet('${k}',this.value)" title="보유량">${qBtns(k)}</span>`;
+      h += `<details class="bd" ${(S.ui.open||{})[k]?'open':''} ontoggle="App.detToggle('${k}',this.open)"><summary>
+          <div class="mat tier${it.t}" style="border:none;background:none;padding:0;min-width:0"><div class="ic"><span class="gl">${it.g}</span>${itemImg(k)}</div></div>
+          <div style="flex:1;min-width:0"><div style="font-size:13px">${esc(it.n)} <span class="mono" style="font-size:10px;color:var(--faint)">${it.cat}</span></div>
+            <div class="bar-o"><div class="f ${lack? '':'full'}" style="width:${pct}%"></div></div></div>
+          <div style="text-align:right;white-space:nowrap"><div class="mono" style="font-size:13px">필요 <b>${fmtN(needN)}</b></div>
+            <div class="mono" style="font-size:11px">${lack? `<span class="red-t">부족 ${fmtN(lack)}</span>`:`<span class="ok-t">확보 완료</span>`}</div></div>
+          ${invCtl}
+        </summary><div class="in">
+          ${it.boss!==undefined? `<div class="note">획득처: <b class="yl-t">${esc(BOSSES[it.boss].stage)}</b> (80 이성 · 확정 6개) / ${esc(BOSSES[it.boss].deep)} (120 이성 · 확정 9개)</div>`
+           : it.src? `<div class="note">획득처: ${esc(it.src)}</div>`:''}
+          <div class="who">${(per[k]||[]).sort((a,b)=>b.n-a.n).map(w=>`<span class="w">${esc(w.c.kr)} <b>${fmtN(w.n)}</b></span>`).join('')}</div>
+        </div></details>`;
+    });
+    return h;
+  },
+  invSet(k,v){ S.inv[k] = Math.max(0, parseInt(v||0,10)||0); save(); if(S.ui.tab==='sum'||S.ui.tab==='farm') this.render(); },
+  invAdd(k,n,ev){ if(ev){ ev.stopPropagation(); ev.preventDefault(); if(ev.shiftKey) n=-n; }
+    S.inv[k] = Math.max(0, (S.inv[k]||0) + n); save(); this.render(); },
+  detToggle(k,open){ S.ui.open = S.ui.open||{}; if(open) S.ui.open[k]=1; else delete S.ui.open[k]; save(); },
+
+  /* ── 탭 3 : 파밍 플랜 ── */
+  viewFarm(){
+    const plans = ROSTER.filter(c=> S.chars[c.id].owned && S.chars[c.id].plan);
+    if(!plans.length) return `<div class="empty"><b>육성 플랜이 비어 있습니다.</b><br>오퍼레이터 탭에서 육성할 캐릭터를 플랜에 추가하면, 어떤 던전을 돌아야 하는지 여기에 정리됩니다.</div>`;
+    const {total, per} = totalNeed();
+    const lack = {}; for(const k in total){ const l = total[k]-invOf(k); if(l>0) lack[k]=l; }
+
+    /* 0) 요약 스트립 */
+    let bossRuns=0, bossLackKinds=0, lackKinds=0;
+    for(const k in lack){ lackKinds++; if(k.startsWith('item_char_skill_specialize')){ bossLackKinds++; bossRuns += Math.ceil(lack[k]/9); } }
+    let h = `<div class="big-stats">
+      <div class="bstat"><div class="k">부족 재료 종류</div><div class="v ${lackKinds?'red-t':'ok-t'}">${lackKinds}<small> 종</small></div></div>
+      <div class="bstat"><div class="k">심층 보스 예상 주행 (확정 9개 기준)</div><div class="v">${bossRuns}<small> 회</small></div></div>
+      <div class="bstat"><div class="k">심층 예상 이성 소모</div><div class="v">${fmt(bossRuns*120)}<small> 이성</small></div></div>
+    </div>`;
+    /* 1) 심층 보스 — 겹치는 캐릭터 강조 */
+    h += `<div class="sec-t">고급 재료 · 심층 보스 <small>같은 보스를 도는 캐릭터끼리 묶어서 표시 — 겹칠수록 이득</small></div><div class="farm-grid">`;
+    for(let b=0;b<5;b++){
+      const id = 'item_char_skill_specialize_'+(b+1);
+      const needN = total[id]||0, lackN = lack[id]||0;
+      const users = (per[id]||[]);
+      const hot = users.length>=2 && lackN>0;
+      const runs = lackN>0 ? Math.ceil(lackN/9) : 0;
+      h += `<div class="fcard ${hot?'hot':''}">
+        <div class="fh"><span class="pip" style="background:var(--t5)"></span>
+          <div class="dg">${esc(BOSSES[b].stage)}<small>${esc(BOSSES[b].deep)}</small></div>
+          <div class="cost">80이성 → 6개<br>120이성 → 9개</div></div>
+        <div class="fb2">
+          ${needN? `<div class="m-row">${matChip(id, needN)}</div>`:''}
+          ${needN? `<div class="m-row" style="font-size:11.5px;color:var(--dim)">보유 ${fmt(invOf(id))} → <span class="q ${lackN? '':'z'}" style="margin-left:4px">${lackN? '부족 '+fmt(lackN) : '확보 완료'}</span></div>`
+                 : `<div class="note">플랜에 이 재료가 필요한 캐릭터가 없습니다.</div>`}
+          ${users.length? `<div class="who">${users.sort((a,b)=>b.n-a.n).map(w=>`<span class="w">${esc(w.c.kr)} <b>${fmt(w.n)}</b></span>`).join('')}</div>`:''}
+          ${users.length>=2? `<div class="runs">✦ <b>${users.length}명</b>의 재료가 이 보스에서 겹칩니다${lackN? ` — 심층 기준 약 <b>${runs}회</b> 주행`:''}</div>`
+            : lackN? `<div class="runs">심층 기준 약 <b>${runs}회</b> 주행 필요</div>`:''}
+        </div></div>`;
+    }
+    h += `</div>`;
+
+    /* 2) 프로토콜 공간 공통 던전 */
+    /* 5단계 기준 1회 수급량 (80이성, A/B 중 택1 보상) */
+    const YIELD = { EXP_LOW:{n:170000,u:'EXP',r:'A'}, EXP_HIGH:{n:68000,u:'EXP',r:'B'},
+      item_gold:{n:34000,u:''}, item_char_skill_level_1_6:{n:85,u:'개',r:'A'}, item_char_skill_level_7_12:{n:17,u:'개',r:'B'},
+      item_char_break_stage_1_2:{n:34,u:'개',r:'A'}, item_char_break_stage_3_4:{n:14,u:'개',r:'B'} };
+    const common = [
+      {t:'변화의 대지', s:'오퍼레이터 경험치', ids:['EXP_LOW','EXP_HIGH'], pip:'var(--t3)'},
+      {t:'~의 축복', s:'탈로시안 화폐', ids:['item_gold'], pip:'var(--t5)'},
+      {t:'탑 시리즈', s:'스킬 재료 (프리즘)', ids:['item_char_skill_level_1_6','item_char_skill_level_7_12'], pip:'var(--t4)'},
+      {t:'심조 시리즈', s:'정예화 재료 (디스크)', ids:['item_char_break_stage_1_2','item_char_break_stage_3_4'], pip:'var(--t4)'},
+    ];
+    h += `<div class="sec-t">프로토콜 공간 · 공통 육성 던전 <small>모든 오퍼레이터가 공유하는 재료</small></div><div class="farm-grid">`;
+    common.forEach(dg=>{
+      const rows = dg.ids.filter(k=> total[k]);
+      h += `<div class="fcard"><div class="fh"><span class="pip" style="background:${dg.pip}"></span>
+        <div class="dg">${dg.t}<small>${dg.s}</small></div></div><div class="fb2">`;
+      if(rows.length){
+        let runsSum=0, parts=[];
+        rows.forEach(k=>{
+          const l = lack[k]||0; const isExp = k.startsWith('EXP'); const f = isExp? fmtExp:fmt;
+          h += `<div class="m-row"><span style="color:var(--dim)">${esc(ITEMS[k].n)}</span>
+            <span class="q ${l? '':'z'}">${l? '부족 '+f(l) : '완료'} <small style="color:var(--faint)">/ ${f(total[k])}</small></span></div>`;
+          const y = YIELD[k];
+          if(l>0 && y){ const r = Math.ceil(l/y.n); runsSum += r;
+            parts.push(`${y.r? y.r+'루트 ':''}${r}회 <small>(회당 ${y.u==='EXP'? fmtExp(y.n):fmt(y.n)}${y.u})</small>`); }
+        });
+        if(runsSum>0) h += `<div class="runs">최고 단계 기준 약 <b>${runsSum}회</b> · 이성 <b>${fmt(runsSum*80)}</b><br><span style="color:var(--faint)">${parts.join(' + ')}</span></div>`;
+      } else h += `<div class="note">현재 플랜에서는 필요 없음</div>`;
+      h += `</div></div>`;
+    });
+    h += `</div>`;
+
+    /* 3) 필드 채집 */
+    const gatherGroups = [
+      {t:'버섯 (정예화)', ids:['item_plant_mushroom_1_1','item_plant_mushroom_1_2','item_plant_mushroom_1_3','item_plant_mushroom_2_1','item_plant_mushroom_2_2'], pip:'var(--el-fire)'},
+      {t:'결정식물 (스킬 · 마스터리)', ids:['item_plant_crylplant_1_1','item_plant_crylplant_1_2','item_plant_crylplant_1_3','item_plant_crylplant_2_1','item_plant_crylplant_2_2'], pip:'var(--el-nat)'},
+    ];
+    h += `<div class="sec-t">필드 채집 &amp; 재배실 <small>이성 없이 필드에서 채집 · 제강호 재배실 양산 가능</small></div><div class="farm-grid">`;
+    gatherGroups.forEach(dg=>{
+      const rows = dg.ids.filter(k=> total[k]);
+      h += `<div class="fcard"><div class="fh"><span class="pip" style="background:${dg.pip}"></span><div class="dg">${dg.t}</div></div><div class="fb2">`;
+      if(rows.length){
+        rows.forEach(k=>{
+          const l = lack[k]||0;
+          h += `<div class="m-row"><span style="color:var(--dim)">${esc(ITEMS[k].n)}</span>
+            <span class="q ${l? '':'z'}">${l? '부족 '+fmt(l):'완료'} <small style="color:var(--faint)">/ ${fmt(total[k])}</small></span></div>`;
+          const users = (per[k]||[]);
+          if(l>0 && k.includes('_2_') && users.length) h += `<div class="who" style="margin:2px 0 6px">${users.map(w=>`<span class="w">${esc(w.c.kr)} <b>${fmt(w.n)}</b></span>`).join('')}</div>`;
+        });
+      } else h += `<div class="note">현재 플랜에서는 필요 없음</div>`;
+      h += `</div></div>`;
+    });
+    /* 존속의 흔적 */
+    const crownNeed = total['item_char_skill_crown']||0, crownLack = lack['item_char_skill_crown']||0;
+    h += `<div class="fcard"><div class="fh"><span class="pip" style="background:var(--yl)"></span>
+      <div class="dg">존속의 흔적<small>반복 파밍 불가 — 계획적으로 사용</small></div></div><div class="fb2">`;
+    if(crownNeed){
+      h += `<div class="m-row"><span style="color:var(--dim)">필요 / 부족</span><span class="q ${crownLack?'':'z'}">${crownLack? '부족 '+fmt(crownLack):'완료'} <small style="color:var(--faint)">/ ${fmt(crownNeed)}</small></span></div>
+        <div class="who">${(per['item_char_skill_crown']||[]).map(w=>`<span class="w">${esc(w.c.kr)} <b>${fmt(w.n)}</b></span>`).join('')}</div>
+        <div class="runs">획득: 보장 징표 교환(월 한정) · 프로토콜 통행증 · 이벤트 보상</div>`;
+    } else h += `<div class="note">마스터리 계획이 없어 필요하지 않습니다.</div>`;
+    h += `</div></div></div>`;
+    return h;
+  },
+
+  /* ── 탭 4 : 데이터 ── */
+  viewData(){
+    return `<div class="set-grid">
+      <div class="panel" style="padding:16px">
+        <div class="sec-t" style="margin-top:0">백업 / 복원</div>
+        <div class="note" style="margin-bottom:10px">브라우저 저장이 막힌 환경(미리보기 등)에서는 아래 내보내기로 백업해 두세요. 파일로 저장하거나, 텍스트를 복사해 옮길 수 있습니다.</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+          <button class="btn yl" onclick="App.exportData()">JSON 파일로 내보내기</button>
+          <button class="btn" onclick="App.importData()">JSON 파일 가져오기</button>
+          <button class="btn" onclick="App.copyData()">텍스트 복사</button>
+          <button class="btn" onclick="App.pasteData()">아래 텍스트 적용</button>
+          <button class="btn danger" onclick="App.resetData()">전체 초기화</button>
+        </div>
+        <textarea id="io" placeholder="여기에 백업 JSON을 붙여넣고 「아래 텍스트 적용」을 누르세요."></textarea>
+      </div>
+      <div class="panel" style="padding:16px">
+        <div class="sec-t" style="margin-top:0">기준 정보</div>
+        <div class="note">
+          · 레벨 상한 90 / 정예화 4단계 (Lv.20 · 40 · 60 · 80에서 돌파)<br>
+          · 스킬 상한: 정예 0→1 / 1→3 / 2→6 / 3→9 / 4→12 (10~12레벨 = 마스터리 1~3)<br>
+          · 마스터리 1회당 존속의 흔적 1/2/3개 — 스킬 하나 M3에 6개, 풀마스터리에 24개<br>
+          · <b>준종결</b> 프리셋 = Lv.80 · 4차 정예화 · 스킬 9/9/9/9 · 재능과 모든 노드 해금<br>
+          · <b>종결</b> 프리셋 = Lv.90 · 4차 정예화 · 스킬 12/12/12/12 (M3) · 모든 노드 해금<br>
+          · 정예화·스킬 비용 테이블은 전 오퍼레이터 공통이며, 캐릭터별로 다른 것은
+          <b>4차 정예화 고급 재료 1종</b>, <b>마스터리 고급 재료 2종(A/B)</b>, <b>황금 버섯 1종</b>, <b>황금 결정식물 1종</b>입니다.<br>
+          · 심층 보스 확정 드랍 외 소량의 타 재료가 랜덤으로 나오지만 계산에는 포함하지 않았습니다.
+        </div>
+        <div class="hr"></div>
+        <div class="note">문제가 있거나 신규 캐릭터가 추가되면, 파일 안의 <span class="mono">CORE</span> 데이터 블록을 수정해 갱신할 수 있습니다.</div>
+      </div>
+    </div>`;
+  },
+
+  saveNow(){ clearTimeout(saveT); Store.set(SKEY, JSON.stringify(S));
+    this.toast(Store.ok ? '저장했습니다' : '이 환경은 브라우저 저장이 막혀 있습니다 — 내보내기로 백업하세요'); },
+  exportData(){
+    const blob = new Blob([JSON.stringify(S,null,1)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'endfield_planner_backup.json'; a.click();
+    URL.revokeObjectURL(a.href); this.toast('백업 파일을 내려받았습니다');
+  },
+  importData(){
+    const f = document.getElementById('file-in');
+    f.onchange = ()=>{ const file=f.files[0]; if(!file) return;
+      const r = new FileReader();
+      r.onload = ()=>{ try{ S = JSON.parse(r.result); buildRoster();
+        save(); this.renderTabs(); this.render(); this.toast('불러오기 완료'); }catch(e){ this.toast('JSON 형식이 올바르지 않습니다'); } };
+      r.readAsText(file); f.value=''; };
+    f.click();
+  },
+  copyData(){ const t=document.getElementById('io'); if(t) t.value = JSON.stringify(S);
+    navigator.clipboard?.writeText(JSON.stringify(S)).then(()=>this.toast('클립보드에 복사했습니다')).catch(()=>this.toast('텍스트 상자에 표시했습니다')); },
+  pasteData(){ const t=document.getElementById('io'); if(!t||!t.value.trim()) return this.toast('붙여넣은 내용이 없습니다');
+    try{ S = JSON.parse(t.value); buildRoster();
+      save(); this.renderTabs(); this.render(); this.toast('적용했습니다'); }catch(e){ this.toast('JSON 형식이 올바르지 않습니다'); } },
+  resetData(){ if(!confirm('모든 진행 상황과 보유량 기록을 초기화할까요?')) return;
+    S = { chars:{}, inv:{}, custom:[], ui:{tab:'ops', fStatus:'all', fElem:'all', fRar:'all', sort:'default'} };
+    buildRoster(); save(); this.renderTabs(); this.render(); this.toast('초기화했습니다'); },
+
+  toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+    clearTimeout(this._tt); this._tt=setTimeout(()=>t.classList.remove('show'), 2200); },
+};
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && document.getElementById('drawer').classList.contains('open')) App.closeDrawer(); });
+App.init();
+</script>
+</body>
+</html>

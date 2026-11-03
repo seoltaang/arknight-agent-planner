@@ -25,7 +25,8 @@
 
 ## 이미지
 
-- 초상화 33개: [Enka.Network](https://enka.network/), `https://enka.network/ui/ef/charroundicon/icon_round_<캐릭터 ID>.png`에서 2026-11-03 다운로드. `assets/operators/`에 포함했습니다.
+- 초상화 32개: [Enka.Network](https://enka.network/), `https://enka.network/ui/ef/charroundicon/icon_round_<캐릭터 ID>.png`에서 2026-11-03 다운로드. `assets/operators/`에 포함했습니다.
+- 관리자 공용 초상화: 기존 버전이 사용하던 [Prydwen의 남녀 관리자 이미지](https://cdn.prydwen.gg/images/arknights-endfield/characters/endministrator_icon.webp)를 원본 그대로 `assets/operators/endministrator.webp`에 포함했습니다. 남녀 관리자는 기존 공용 ID와 육성 기록을 사용합니다.
 - 재료 아이콘 29개: [555me/EndfieldAssets](https://github.com/555me/EndfieldAssets/tree/966ed92d2556386a37e4ec076a812ff46ca2fae9), 커밋 `966ed92d2556386a37e4ec076a812ff46ca2fae9`, Android CN 1.6 / `initial_11262943-8_main_11262943-8`.
 - 원본 경로: `assets/beyond/dynamicassets/gameplay/ui/sprites/itemicon/<ItemTable.iconId>.png`. 앱에는 `assets/items/<아이템 ID>.png`로 저장했습니다.
 - 게임 데이터와 이미지의 권리는 Hypergryph 및 해당 권리자에게 있습니다. 이 저장소가 게임 이미지의 저작권을 소유한다고 주장하지 않습니다.
@@ -40,7 +41,7 @@ Python 3, Node.js, Playwright, Chromium이 설치된 환경에서 다음을 실�
 node tests/planner.cjs
 ```
 
-Chromium 실행 파일이 다른 위치에 있으면 `CHROMIUM_PATH`를 지정합니다. 테스트는 자체 임시 포트에서 서버를 시작하고 종료하며, 별도 브라우저 컨텍스트를 사용합니다. 10개 비용 사례, 로컬 이미지 62개, 한글 검색, 이전 저장 데이터 유지, 신규 재료 정산·파밍, 사용자 추가 재료 선택, 모바일 너비, 두 HTML 진입점을 검증합니다.
+Chromium 실행 파일이 다른 위치에 있으면 `CHROMIUM_PATH`를 지정합니다. 테스트는 자체 임시 포트에서 서버를 시작하고 종료하며, 별도 브라우저 컨텍스트를 사용합니다. 10개 비용 사례, 로컬 이미지 62개, 관리자 공용 초상화, 한글 조합·검색·필터, 상세 패널 키보드 조작, 이전 저장 데이터 유지, 재료 정산·파밍, 진행률 경계값 9개, 현재 프리셋 입력·되돌리기, 테마 저장, 320/390/1440px 화면과 두 HTML 진입점을 검증합니다.
 
 로컬 실행:
 
